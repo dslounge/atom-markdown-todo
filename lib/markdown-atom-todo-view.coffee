@@ -20,3 +20,6 @@ class MarkdownAtomTodoView
 
   getElement: ->
     @element
+
+  setCount: (words) ->
+    @element.textContent = "The word count is " + words

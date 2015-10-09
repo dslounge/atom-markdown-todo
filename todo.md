@@ -4,7 +4,7 @@ This is an example of one of my TODO documents. Each week I decide what to do
 and when. These items are separated by category, and inside each category
 there's a list of things to do, with a day they're supposed to be done, and
 whether they are done or not.
-
+s
 Some goals:
 - I would like this to automatically highlight the things I need to do TODAY
 - I would like this to mute things that have already been done.
