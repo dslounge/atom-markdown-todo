@@ -8,7 +8,7 @@ module.exports = MarkdownAtomTodo =
 
   activate: (state) ->
 
-    console.log "Activate method gets called the first time the command is called, not on reload"
+    # Activate method gets called the first time the command is called, not on reload
 
     @markdownAtomTodoView = new MarkdownAtomTodoView(state.markdownAtomTodoViewState)
     # Create a hidden modal panel.
@@ -17,15 +17,18 @@ module.exports = MarkdownAtomTodo =
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
-    # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'markdown-atom-todo:toggle': => @toggle()
+    #register the command.
+    @subscriptions.add atom.commands.add 'atom-workspace', 'markdown-atom-todo:parse todo': => @parseTodoMarkdown()
 
     # registers a listener, only after this package has been activated though.
     # this should probably go in subscriptions so we can throw it way
     # when it gets shut down.
-    atom.workspace.observeTextEditors (editor) ->
-      editor.onDidSave ->
-        console.log "Saved! #{editor.getPath()}"
+
+    @subscriptions.add atom.workspace.observeTextEditors (editor) =>
+      editor.onDidSave =>
+        title = editor.getTitle()
+        if title.split('.').pop() == 'md'
+          @parseTodoMarkdown()
 
   deactivate: ->
     @modalPanel.destroy()
@@ -35,18 +38,14 @@ module.exports = MarkdownAtomTodo =
   serialize: ->
     markdownAtomTodoViewState: @markdownAtomTodoView.serialize()
 
-  toggle: ->
-    console.log 'MarkdownAtomTodo was toggled!'
-
-    #get the editor
+  parseTodoMarkdown: ->
     editor = atom.workspace.getActiveTextEditor()
-    # get the number of words
-    words = editor.getText().split(/\s+/).length
-    console.log(words)
+    lines = editor.getLineCount()
+    console.log "--parseMarkdown-- lines: #{ lines }"
 
-    @markdownAtomTodoView.setCount(words)    
+    h2Regex = /^##\s/
 
-    if @modalPanel.isVisible()
-      @modalPanel.hide()
-    else
-      @modalPanel.show()
+    for i in [0..lines]
+      testText = editor.lineTextForBufferRow(i)
+      if h2Regex.test(testText)
+        console.log "#{i}: #{testText}"

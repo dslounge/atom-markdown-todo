@@ -6,7 +6,8 @@
   "keywords": [
   ],
   "activationCommands": {
-    "atom-workspace": "markdown-atom-todo:toggle"
+    "atom-workspace": "markdown-atom-todo:toggle",
+    "atom-workspace": "markdown-atom-todo:parse todo"
   },
   "repository": "https://github.com/atom/markdown-atom-todo",
   "license": "MIT",
