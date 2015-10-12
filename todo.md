@@ -20,17 +20,18 @@ Some goals:
 - R   DONE  Figure out how to register a command.
 - F   DONE  Figure out how to run that command on save.
 - F   DONE  Figure out how to access the editor text.
--
-- F   Figure out how to access the editor view DOM.
-- S   Figure out how to parse through the markdown text
-  -   Regex search for things I want to find: dates, TODO, all-caps text.
-  -   Search only for the current week / first week block found.
+- S   DONE  Regex match H2
+- S   DONE  Parse H2 dates with moment.js
 
-- S   From searching the markdown document, create a list view changes to be made
-  - Mute old items
-  - Highlight items to do today
-  - Apply styles to badges.
-- S   Do the view changes.
+- M   Clean up and breakup `pareseTodoMarkdown` function into utils
+- M   Regex match H3
+- M   Loop through each todo item and parse dates
+- T   Identify badges (ALLCAPS text) in each todo item
+- T   Figure out how to run unit tests for functions in this extension
+- T   Figure out how to access the editor view DOM.
+- W   Mute old items
+- W   Highlight items due today
+- W   Apply styles to badges
 
 ### Some other category
 
@@ -41,3 +42,12 @@ Some goals:
 - R   Something to do on Thursday
 - F   Something to do on Friday
 - S   Something to do on Saturday
+
+> Here are some alternative dates for testing
+## Dec 15th 2015
+
+## Jan 1st 2016
+
+## Feb 2nd 2017
+
+## Mar 3rd 2015

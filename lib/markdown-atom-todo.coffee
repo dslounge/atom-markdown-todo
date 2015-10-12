@@ -1,3 +1,4 @@
+moment = require '../node_modules/moment/min/moment.min'
 MarkdownAtomTodoView = require './markdown-atom-todo-view'
 {CompositeDisposable} = require 'atom'
 
@@ -48,4 +49,9 @@ module.exports = MarkdownAtomTodo =
     for i in [0..lines]
       testText = editor.lineTextForBufferRow(i)
       if h2Regex.test(testText)
-        console.log "#{i}: #{testText}"
+        console.log "\n--#{i}: #{testText}--"
+        # TODO: Use moment to parse the date.
+        datePart = testText.substring(3)
+        console.log datePart
+        weekStart = moment(datePart, "MMM-Do-YYYY")
+        console.log weekStart.format('MM DD YY')
