@@ -23,13 +23,19 @@ Some goals:
 - S   DONE  Regex match H2
 - S   DONE  Parse H2 dates with moment.js
 
-- M   Clean up and breakup `pareseTodoMarkdown` function into utils
-- M   Regex match H3
-- M   Loop through each todo item and parse dates
-- T   Identify badges (ALLCAPS text) in each todo item
-- T   Figure out how to run unit tests for functions in this extension
-- T   Figure out how to access the editor view DOM.
-- W   Mute old items
+- M   DONE  Clean up and breakup `pareseTodoMarkdown` function into utils
+- M   DONE  Figure out ability to add a marker and highlight
+
+- T   Add all markers/decorations to a central object for tracking
+- T   Loop through items and decorate items due today
+- T   Identify badges (ALLCAPS text) in each todo item and mark them
+- T   Mute items that are done.
+
+- W   Add my markdown stylesheet colors to my extension
+- W   Add ability to clear existing markers.
+- W   Regex match H3
+- W   Loop through each todo item and hours
+- W   Figure out how to run unit tests for functions in this extension
 - W   Highlight items due today
 - W   Apply styles to badges
 

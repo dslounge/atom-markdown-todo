@@ -1,4 +1,5 @@
-moment = require '../node_modules/moment/min/moment.min'
+moment = require 'moment'
+$ = require 'jquery'
 MarkdownAtomTodoView = require './markdown-atom-todo-view'
 {CompositeDisposable} = require 'atom'
 
@@ -6,6 +7,9 @@ module.exports = MarkdownAtomTodo =
   markdownAtomTodoView: null
   modalPanel: null
   subscriptions: null
+  regex:
+    h2: /^##\s/
+  dateformat: 'MMM-Do-YYYY'
 
   activate: (state) ->
 
@@ -39,19 +43,54 @@ module.exports = MarkdownAtomTodo =
   serialize: ->
     markdownAtomTodoViewState: @markdownAtomTodoView.serialize()
 
-  parseTodoMarkdown: ->
+  parseDate: (dateString) ->
+    moment(dateString, @dateformat)
+
+  getActiveEditorView: ->
+    textEditor = atom.workspace.getActiveTextEditor()
+    atom.views.getView(textEditor)
+
+  dateFromHeader: (header) ->
+    datePart = header.substring(3)
+    @parseDate(datePart)
+
+  getH2Headers: ->
     editor = atom.workspace.getActiveTextEditor()
-    lines = editor.getLineCount()
-    console.log "--parseMarkdown-- lines: #{ lines }"
+    weekHeaders = []
+    for i in [0..editor.getLastBufferRow()]
+      rowText = editor.lineTextForBufferRow(i)
+      if @regex.h2.test(rowText)
+        headerItem =
+          bufferLine: i
+          screenLine: editor.screenPositionForBufferPosition(i)
+          startDate: @dateFromHeader(rowText)
+          textRange: [[3,i], [6, i]]
+        weekHeaders.push headerItem
+    weekHeaders
 
-    h2Regex = /^##\s/
 
-    for i in [0..lines]
-      testText = editor.lineTextForBufferRow(i)
-      if h2Regex.test(testText)
-        console.log "\n--#{i}: #{testText}--"
-        # TODO: Use moment to parse the date.
-        datePart = testText.substring(3)
-        console.log datePart
-        weekStart = moment(datePart, "MMM-Do-YYYY")
-        console.log weekStart.format('MM DD YY')
+  parseTodoMarkdown: ->
+    console.log "--parseMarkdown-- lines"
+    editor = atom.workspace.getActiveTextEditor()
+    weekHeaders = @getH2Headers()
+    console.log weekHeaders
+    # console.log weekStart.format('MM DD YY')
+
+    firstWeek = weekHeaders[0]
+    console.log firstWeek
+    marker = editor.markBufferRange(firstWeek.textRange)
+
+    editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")    
+
+    testRange = editor.getSelectedBufferRange()
+    testMark = editor.markBufferRange(testRange)
+    editor.decorateMarker(testMark, type: 'highlight', class: "my-line-class")
+
+    console.log testRange
+
+
+
+    # Maybe I don't need the view at all if I use markers
+    #editorView = @getActiveEditorView()
+    #shadowRoot = editorView.shadowRoot
+    #viewLine = $(shadowRoot).find("[data-screen-row='15']")
