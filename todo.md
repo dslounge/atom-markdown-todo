@@ -32,10 +32,10 @@ Some goals:
 - T   DONE  Identify DONE in each todo item and mark them
 - T   DONE  Mute items that are done.
 
-- W   decorate items due today
+- W   DONE  decorate items due today
 - W   Identify time estimates in items
-- W   Figure out how to run unit tests for functions in this extension
-- W   Apply styles to badges
+- R   Figure out how to run unit tests for functions in this extension
+- R   Apply styles to badges
 
 ### Some other category
 
