@@ -12,7 +12,7 @@ Some goals:
 - I would like to be able to specify badges (all caps text), and colors for those badges.
   - The DONE text would be a badge, for example.
 
-## Oct 8th, 2015
+## Oct 8th 2015
 
 ### This project
 
@@ -26,6 +26,8 @@ Some goals:
 - M   DONE  Clean up and breakup `pareseTodoMarkdown` function into utils
 - M   DONE  Figure out ability to add a marker and highlight
 
+- T   DONE  Fix issue with markers not being created correctly
+- T   Figure out how to erase existing markers
 - T   Add all markers/decorations to a central object for tracking
 - T   Loop through items and decorate items due today
 - T   Identify badges (ALLCAPS text) in each todo item and mark them

@@ -4,15 +4,27 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
-.markdown-atom-todo {
-
+.badge{
+  padding: 0.1em 1.7em;
+  margin-left: -.5em;
+  min-width: 1.875em;
+  font-weight: normal;
+  border-radius: 2em;
+  background-color: #3e4451;
 }
 
 /* This might not be the best way to do it */
 atom-text-editor::shadow{
   .my-line-class{
     .region{
-      background-color: #FF0000;
-    }  
+      background-color: @background-color-highlight;
+    }
+  }
+
+  .done-badge{
+    .region{
+      .badge;
+      background-color: rgba(32, 182, 132, 0.5);
+    }
   }
 }

@@ -9,7 +9,13 @@ module.exports = MarkdownAtomTodo =
   subscriptions: null
   regex:
     h2: /^##\s/
+    h3: /^###\s/
+    item: /^\s*-\s/
+    doneBadge: /DONE/
   dateformat: 'MMM-Do-YYYY'
+
+  markers: []
+  decorators: []
 
   activate: (state) ->
 
@@ -24,6 +30,7 @@ module.exports = MarkdownAtomTodo =
 
     #register the command.
     @subscriptions.add atom.commands.add 'atom-workspace', 'markdown-atom-todo:parse todo': => @parseTodoMarkdown()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'markdown-atom-todo:destroy markers': => @destroyMarkers()
 
     # registers a listener, only after this package has been activated though.
     # this should probably go in subscriptions so we can throw it way
@@ -54,43 +61,96 @@ module.exports = MarkdownAtomTodo =
     datePart = header.substring(3)
     @parseDate(datePart)
 
-  getH2Headers: ->
+  inlineTextRange: (row, start, end) ->
+    return [[row, start], [row, end]]
+
+  createH2Item: (rowIndex, text) ->
+    dateIndexStart = 3
+    dateLength =　text.substring(3).length
+    bufferRowIndex: rowIndex
+    startDate: @dateFromHeader(text)
+    textRange: @inlineTextRange(rowIndex, dateIndexStart, dateIndexStart + dateLength)
+    children: []
+
+  createH3Item: (rowIndex, text) ->
+    bufferRowIndex: rowIndex
+    title: text.substring(3)
+    children: []
+
+  #TODO: parse day, done tag, item
+  createTodoItem: (rowIndex, text) ->
+    doneIndex = text.search(@regex.doneBadge)
+    isDone: (doneIndex != -1)
+    doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
+    bufferRowIndex: rowIndex
+
+
+  # TODO: Eventually this should be more generalized.
+  # The header types shouldn't be hardcoded.
+  # But for right now it's so that it fits my todo system.
+  makeTodoTree: ->
     editor = atom.workspace.getActiveTextEditor()
-    weekHeaders = []
+    todoTree = []
+    currentH2 = currentH3 = null
+
     for i in [0..editor.getLastBufferRow()]
       rowText = editor.lineTextForBufferRow(i)
       if @regex.h2.test(rowText)
-        headerItem =
-          bufferLine: i
-          screenLine: editor.screenPositionForBufferPosition(i)
-          startDate: @dateFromHeader(rowText)
-          textRange: [[3,i], [6, i]]
-        weekHeaders.push headerItem
-    weekHeaders
+        currentH3 = null
+        currentH2 = h2Item = @createH2Item(i, rowText)
+        todoTree.push h2Item
 
+      else if @regex.h3.test(rowText) and currentH2?
+        #ignore H3 that aren't under H2
+        currentH3 = h3Item = @createH3Item(i, rowText)
+        currentH2.children.push h3Item
+
+      else if @regex.item.test(rowText) and currentH3?
+        #ignore items that aren't under H3
+        item = @createTodoItem(i, rowText)
+        currentH3.children.push item
+      else if currentH2?
+        console.log "ignored: #{i}: #{rowText}"
+    todoTree
+
+  decorateTree: (editor, tree) ->
+    for week in tree
+      marker = @createMarker(editor, week.textRange)
+      editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
+
+      for section in week.children
+        for item in section.children
+          if item.isDone
+            marker = @createMarker(editor, item.doneBadgeRange)
+            editor.decorateMarker(marker, type: 'highlight', class: "done-badge")
+
+
+
+
+  destroyMarkers: () ->
+    console.log "--destroyMarkers--"
+    editor = atom.workspace.getActiveTextEditor()
+    markerList = editor.findMarkers(mdtodo:true)
+    console.log markerList.length
+    for marker in markerList
+      console.log marker
+      marker.destroy()
+
+  createMarker: (editor, range) ->
+    marker = editor.markBufferRange(range, mdtodo: true)
+    @markers.push marker
+    marker
+
+  #TODO: Maybe I don't need this.
+  createDecorator: (marker, properties) ->
+    decorator = editor.decorateMarker(marker, properties)
+    @decorators.push decorator
+    decorator
 
   parseTodoMarkdown: ->
-    console.log "--parseMarkdown-- lines"
-    editor = atom.workspace.getActiveTextEditor()
-    weekHeaders = @getH2Headers()
-    console.log weekHeaders
     # console.log weekStart.format('MM DD YY')
-
-    firstWeek = weekHeaders[0]
-    console.log firstWeek
-    marker = editor.markBufferRange(firstWeek.textRange)
-
-    editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")    
-
-    testRange = editor.getSelectedBufferRange()
-    testMark = editor.markBufferRange(testRange)
-    editor.decorateMarker(testMark, type: 'highlight', class: "my-line-class")
-
-    console.log testRange
-
-
-
-    # Maybe I don't need the view at all if I use markers
-    #editorView = @getActiveEditorView()
-    #shadowRoot = editorView.shadowRoot
-    #viewLine = $(shadowRoot).find("[data-screen-row='15']")
+    console.log "--parseMarkdown--"
+    @destroyMarkers()
+    editor = atom.workspace.getActiveTextEditor()
+    todoTree = @makeTodoTree()
+    @decorateTree(editor, todoTree)

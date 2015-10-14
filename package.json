@@ -5,8 +5,7 @@
   "description": "A short description of your package",
   "keywords": [
   ],
-  "activationCommands": {
-    "atom-workspace": "markdown-atom-todo:toggle",
+  "activationCommands": {  
     "atom-workspace": "markdown-atom-todo:parse todo"
   },
   "repository": "https://github.com/atom/markdown-atom-todo",
