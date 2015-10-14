@@ -82,6 +82,7 @@ module.exports = MarkdownAtomTodo =
     doneIndex = text.search(@regex.doneBadge)
     isDone: (doneIndex != -1)
     doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
+    lineRange: @inlineTextRange(rowIndex, 0, text.length)
     bufferRowIndex: rowIndex
 
 
@@ -123,6 +124,9 @@ module.exports = MarkdownAtomTodo =
           if item.isDone
             marker = @createMarker(editor, item.doneBadgeRange)
             editor.decorateMarker(marker, type: 'highlight', class: "done-badge")
+
+            lineMarker = @createMarker(editor, item.lineRange)
+            editor.decorateMarker(lineMarker, type: 'line', class: "item-done")
 
 
 

@@ -27,18 +27,14 @@ Some goals:
 - M   DONE  Figure out ability to add a marker and highlight
 
 - T   DONE  Fix issue with markers not being created correctly
-- T   Figure out how to erase existing markers
-- T   Add all markers/decorations to a central object for tracking
-- T   Loop through items and decorate items due today
-- T   Identify badges (ALLCAPS text) in each todo item and mark them
-- T   Mute items that are done.
+- W   DONE  Regex match H3
+- T   DONE  Figure out how to erase existing markers
+- T   DONE  Identify DONE in each todo item and mark them
+- T   DONE  Mute items that are done.
 
-- W   Add my markdown stylesheet colors to my extension
-- W   Add ability to clear existing markers.
-- W   Regex match H3
-- W   Loop through each todo item and hours
+- W   decorate items due today
+- W   Identify time estimates in items
 - W   Figure out how to run unit tests for functions in this extension
-- W   Highlight items due today
 - W   Apply styles to badges
 
 ### Some other category
