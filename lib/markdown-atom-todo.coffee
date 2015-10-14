@@ -12,10 +12,17 @@ module.exports = MarkdownAtomTodo =
     h3: /^###\s/
     item: /^\s*-\s/
     doneBadge: /DONE/
+    day: /\s[MTWRSFU]\s/
   dateformat: 'MMM-Do-YYYY'
 
-  markers: []
-  decorators: []
+  dayKeys:
+    M: 'Mo'
+    T: 'Tu'
+    W: 'We'
+    R: 'Th'
+    F: 'Fr'
+    S: 'Sa'
+    U: 'Su'
 
   activate: (state) ->
 
@@ -80,7 +87,9 @@ module.exports = MarkdownAtomTodo =
   #TODO: parse day, done tag, item
   createTodoItem: (rowIndex, text) ->
     doneIndex = text.search(@regex.doneBadge)
+    day = text.match(@regex.day)?[0].trim()
     isDone: (doneIndex != -1)
+    day: @dayKeys[day]
     doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
     lineRange: @inlineTextRange(rowIndex, 0, text.length)
     bufferRowIndex: rowIndex
@@ -115,6 +124,8 @@ module.exports = MarkdownAtomTodo =
     todoTree
 
   decorateTree: (editor, tree) ->
+    weekIndex = 0
+    todayString = moment().format('dd')
     for week in tree
       marker = @createMarker(editor, week.textRange)
       editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
@@ -124,12 +135,12 @@ module.exports = MarkdownAtomTodo =
           if item.isDone
             marker = @createMarker(editor, item.doneBadgeRange)
             editor.decorateMarker(marker, type: 'highlight', class: "done-badge")
-
             lineMarker = @createMarker(editor, item.lineRange)
             editor.decorateMarker(lineMarker, type: 'line', class: "item-done")
-
-
-
+          else if (weekIndex == 0) and (item.day == todayString)
+            lineMarker = @createMarker(editor, item.lineRange)
+            editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
+      weekIndex++
 
   destroyMarkers: () ->
     console.log "--destroyMarkers--"
@@ -142,14 +153,7 @@ module.exports = MarkdownAtomTodo =
 
   createMarker: (editor, range) ->
     marker = editor.markBufferRange(range, mdtodo: true)
-    @markers.push marker
     marker
-
-  #TODO: Maybe I don't need this.
-  createDecorator: (marker, properties) ->
-    decorator = editor.decorateMarker(marker, properties)
-    @decorators.push decorator
-    decorator
 
   parseTodoMarkdown: ->
     # console.log weekStart.format('MM DD YY')
