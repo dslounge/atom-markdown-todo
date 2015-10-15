@@ -5,7 +5,7 @@
   "description": "A short description of your package",
   "keywords": [
   ],
-  "activationCommands": {  
+  "activationCommands": {
     "atom-workspace": "markdown-atom-todo:parse todo"
   },
   "repository": "https://github.com/atom/markdown-atom-todo",
@@ -14,7 +14,6 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "moment": "~2.10.6",
-    "jquery": "~1.11.3"
+    "moment": "~2.10.6"
   }
 }

@@ -1,5 +1,4 @@
 moment = require 'moment'
-$ = require 'jquery'
 MarkdownAtomTodoView = require './markdown-atom-todo-view'
 {CompositeDisposable} = require 'atom'
 
