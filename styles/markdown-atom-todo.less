@@ -35,9 +35,11 @@ atom-text-editor::shadow{
   .estimate-badge{
     .region{
       .badge;
-      background-color: @background-color-info;
+      background-color: rgba(0, 136, 255, 0.4);
     }
   }
+
+
 
   .item-done{
     opacity: 0.4;
@@ -46,4 +48,13 @@ atom-text-editor::shadow{
   .item-today{
     color: @text-color-warning;
   }
+}
+
+/* overlays are outside the shadow root */
+.section-estimate{
+  .badge;
+  background-color: rgba(0, 136, 255, 0.5);
+  margin-top: -1.5em;
+  margin-left: 1em;
+  height: 1.4em !important;
 }

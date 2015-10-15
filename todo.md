@@ -33,7 +33,8 @@ Some goals:
 - T   DONE  Mute items that are done.
 
 - W   DONE  decorate items due today
-- W   2h  Identify time estimates in items
+- W   2h  DONE Identify time estimates in items
+- W   1h  DONE  Display estimate sum in title
 - R   4h  Figure out how to run unit tests for functions in this extension
 - R   4h  Add custom badges
 

@@ -81,9 +81,21 @@ module.exports = MarkdownAtomTodo =
     children: []
 
   createH3Item: (rowIndex, text) ->
+    title = text.substring(4)
+
     bufferRowIndex: rowIndex
-    title: text.substring(3)
+    title: title
+    textRange: @inlineTextRange(rowIndex, 4, 4 + title.length)
     children: []
+    estimateTotalDuration: moment.duration()
+    estimateDoneDuration: moment.duration()
+    addTodoItem: (item) ->
+      @children.push item
+      if item.estimate?
+        @estimateTotalDuration.add(item.estimate.duration)
+        if item.isDone
+          @estimateDoneDuration.add(item.estimate.duration)
+
 
   createDurationItem: (rowIndex, regResult) ->
     if regResult?
@@ -143,11 +155,12 @@ module.exports = MarkdownAtomTodo =
       else if @regex.item.test(rowText) and currentH3?
         #ignore items that aren't under H3
         item = @createTodoItem(i, rowText)
-        currentH3.children.push item
-      else if currentH2?
-        console.log "ignored: #{i}: #{rowText}"
+        currentH3.addTodoItem(item)
+
     todoTree
 
+  # TODO: All this needs to get broken down into functions.
+  # it's getting messy.
   decorateTree: (editor, tree) ->
     weekIndex = 0
     todayString = moment().format('dd')
@@ -156,8 +169,21 @@ module.exports = MarkdownAtomTodo =
       editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
 
       for section in week.children
-        for item in section.children
+        console.log section.estimateTotalDuration
+        console.log section.estimateDoneDuration
 
+        marker = @createMarker(editor, section.textRange)
+        # Create message element
+        estElement = document.createElement('div')
+        estElement.classList.add('section-estimate')
+
+        totalHours = section.estimateTotalDuration.asHours()
+        completedHours = section.estimateDoneDuration.asHours()
+
+        estElement.textContent = "#{completedHours} / #{totalHours} hours completed."
+        editor.decorateMarker(marker, type: 'overlay', item: estElement)
+
+        for item in section.children
           if item.estimate?
             marker = @createMarker(editor, item.estimate.range)
             editor.decorateMarker(marker, type: 'highlight', class: "estimate-badge")
