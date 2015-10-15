@@ -13,6 +13,7 @@ module.exports = MarkdownAtomTodo =
     item: /^\s*-\s/
     doneBadge: /DONE/
     day: /\s[MTWRSFU]\s/
+    duration: /\d+[mhd]/g
   dateformat: 'MMM-Do-YYYY'
 
   dayKeys:
@@ -84,15 +85,39 @@ module.exports = MarkdownAtomTodo =
     title: text.substring(3)
     children: []
 
-  #TODO: parse day, done tag, item
+  createDurationItem: (rowIndex, regResult) ->
+    if regResult?
+      text = regResult[0]
+      number = parseInt(text.slice(0, -1))
+      unit = text.slice(-1)
+
+      duration =
+        text: text
+        range: @inlineTextRange(rowIndex, regResult.index, regResult.index + text.length)
+        duration: moment.duration(number, unit)
+    else
+      null
+
+  #TODO: estimates
   createTodoItem: (rowIndex, text) ->
     doneIndex = text.search(@regex.doneBadge)
     day = text.match(@regex.day)?[0].trim()
+
+    # because I'm using the /g flag exec isn't idempotent
+    # reset the lastIndex property from previous run
+    @regex.duration.lastIndex = 0
+    # get the first duration (estimate)
+    estimate = @createDurationItem(rowIndex, @regex.duration.exec(text))
+    #get the second duration (actual)
+    actual = @createDurationItem(rowIndex, @regex.duration.exec(text))
+
     isDone: (doneIndex != -1)
     day: @dayKeys[day]
     doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
     lineRange: @inlineTextRange(rowIndex, 0, text.length)
     bufferRowIndex: rowIndex
+    estimate: estimate
+    actual: actual
 
 
   # TODO: Eventually this should be more generalized.
@@ -132,6 +157,11 @@ module.exports = MarkdownAtomTodo =
 
       for section in week.children
         for item in section.children
+
+          if item.estimate?
+            marker = @createMarker(editor, item.estimate.range)
+            editor.decorateMarker(marker, type: 'highlight', class: "estimate-badge")
+
           if item.isDone
             marker = @createMarker(editor, item.doneBadgeRange)
             editor.decorateMarker(marker, type: 'highlight', class: "done-badge")

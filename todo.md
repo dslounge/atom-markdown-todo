@@ -33,9 +33,9 @@ Some goals:
 - T   DONE  Mute items that are done.
 
 - W   DONE  decorate items due today
-- W   Identify time estimates in items
-- R   Figure out how to run unit tests for functions in this extension
-- R   Apply styles to badges
+- W   2h  Identify time estimates in items
+- R   4h  Figure out how to run unit tests for functions in this extension
+- R   4h  Add custom badges
 
 ### Some other category
 

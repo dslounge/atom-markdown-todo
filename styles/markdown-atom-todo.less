@@ -5,12 +5,16 @@
 @import "ui-variables";
 
 .badge{
-  padding: 0em 1.39em;
-  margin-left: -.4em;
-  min-width: 1.875em;
+
+  padding: 0 .3em;
+  margin-left: -.3em;
+  margin-top: .12em;
   font-weight: normal;
   border-radius: .4em;
   background-color: #3e4451;
+  // border: 1px solid @pane-item-background-color;
+  box-sizing: content-box !important;
+  height: 1.2em !important;
 }
 
 /* This might not be the best way to do it */
@@ -24,8 +28,14 @@ atom-text-editor::shadow{
   .done-badge{
     .region{
       .badge;
-      background-color: rgba(32, 182, 132, 0.5);
-      border: 2px solid #282C34;
+      background-color: rgba(32, 182, 132, 0.2);
+    }
+  }
+
+  .estimate-badge{
+    .region{
+      .badge;
+      background-color: @background-color-info;
     }
   }
 
