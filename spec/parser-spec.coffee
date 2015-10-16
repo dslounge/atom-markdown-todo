@@ -208,7 +208,6 @@ describe "TodoParser", ->
           output = parser.parseTodoLine(1, testLine)
           expect(output.estimate).toBeNull()
 
-
   describe 'dateFromHeader', ->
     testOutput = null
 

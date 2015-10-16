@@ -86,11 +86,11 @@ module.exports =
       null
 
   parseLine: (index, text) ->
-    console.log "parseLine: #{index}, #{text}"
+    # console.log "parseLine: #{index}, #{text}"
     if textConsts.regex.h2.test(text)
       @currentH3 = null
       @currentH2 = h2Item = @parseH2Line(index, text)
-      console.log "push h2: #{@currentH2}"
+      # console.log "push h2: #{@currentH2}"
       @todoModel.push h2Item
     else if textConsts.regex.h3.test(text) and @currentH2?
       #ignore H3 that aren't under H2

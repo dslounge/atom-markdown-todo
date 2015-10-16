@@ -5,9 +5,6 @@ textConsts = require './todo-text-consts'
 
 module.exports = MarkdownAtomTodo =
   subscriptions: null
-  regex: textConsts.regex #TODO: refactor out
-  dateformat: textConsts.formats.dateformat #TODO: refactor out
-  dayKeys: textConsts.formats.dayKeys #TODO: refactor out
 
   # Activate method gets called the first time the command is called.
   activate: (state) ->
