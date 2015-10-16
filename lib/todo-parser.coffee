@@ -13,7 +13,7 @@ module.exports =
     @currentH3 = null
 
   parseDate: (dateString) ->
-    moment(dateString, @dateformat)
+    moment(dateString, textConsts.formats.dateformat)
 
   dateFromHeader: (header) ->
     datePart = header.substring(3)
@@ -24,11 +24,11 @@ module.exports =
 
   parseH2Line: (index, text) ->
     console.log "--parseH2Line--: #{index}, #{text}"
-    dateIndexStart = 3
-    dateLength =　text.substring(3).length
+    dateStartIndex = 3
+    dateLength =　text.substring(dateStartIndex).length
     bufferRowIndex: index
     startDate: @dateFromHeader(text)
-    textRange: @inlineTextRange(index, dateIndexStart, dateIndexStart + dateLength)
+    textRange: @inlineTextRange(index, dateStartIndex, dateStartIndex + dateLength)
     children: []
 
   parseH3Line: (index, text) ->
