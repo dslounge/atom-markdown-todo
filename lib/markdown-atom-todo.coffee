@@ -86,10 +86,8 @@ module.exports = MarkdownAtomTodo =
 
   # Renderer method
   destroyMarkers: ->
-    console.log "--destroyMarkers--"
     editor = atom.workspace.getActiveTextEditor()
     markerList = editor.findMarkers(mdtodo: true)
-    console.log markerList.length
     for marker in markerList
       console.log marker
       marker.destroy()
@@ -101,8 +99,6 @@ module.exports = MarkdownAtomTodo =
 
   # entry function.
   parseTodoMarkdown: ->
-    # console.log weekStart.format('MM DD YY')
-    console.log "--parseMarkdown--"
     @destroyMarkers()
     editor = atom.workspace.getActiveTextEditor()
     todoTree = @makeTodoTree()
