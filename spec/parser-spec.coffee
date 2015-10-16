@@ -239,3 +239,6 @@ describe "TodoParser", ->
     it 'returns a 2-dimensional array', ->
       output = parser.inlineTextRange(1, 3, 15)
       expect(output).toEqual([[1, 3], [1, 15]])
+
+  #TODO: Add tests for createDurationItem
+  describe 'createDurationItem', ->
