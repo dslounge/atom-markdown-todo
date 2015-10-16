@@ -66,10 +66,10 @@ describe "TodoParser", ->
       parser.parseLine(4, h1_valid)
       expect(parser.ignoreLine).toHaveBeenCalled()
 
-  describe "parseH2Line", ->
+  describe 'parseH2Line', ->
     rowIndex = week = null
 
-    describe "with valid input", ->
+    describe 'with valid input', ->
 
       beforeEach ->
         rowIndex = 1
@@ -92,6 +92,41 @@ describe "TodoParser", ->
 
       it 'returns a week object with an empty children list', ->
         expect(week.children).toEqual([])
+
+  describe 'parseH3Line', ->
+
+    describe 'with valid input', ->
+      sectionItem = rowIndex = null
+      beforeEach ->
+        rowIndex = 2
+        testH3 = '### Some Project'
+        sectionItem = parser.parseH3Line(rowIndex, testH3)
+
+      it 'returns a section object', ->
+        expect(sectionItem).not.toBeNull()
+
+      it 'returns a section object with valid bufferRowIndex', ->
+        expect(sectionItem.bufferRowIndex).toBe(2)
+
+      it 'returns a section object with valid title', ->
+        expect(sectionItem.title).toBe('Some Project')
+
+      it 'returns a section object with valid textRange', ->
+        expect(sectionItem.textRange).toEqual([[2, 4], [2, 16]])
+
+      it 'returns a section object with valid children', ->
+        expect(sectionItem.children).toEqual([])
+
+      it 'returns a section object with valid estimateTotalDuration', ->
+        # moment durations don't have a isA boolean flag for testing.
+        expect(sectionItem.estimateTotalDuration._milliseconds).not.toBeNull()
+
+      it 'returns a section object with valid estimateDoneDuration', ->
+        # moment durations don't have a isA boolean flag for testing.
+        expect(sectionItem.estimateDoneDuration._milliseconds).not.toBeNull()
+
+      it 'returns a section object with valid addTodoItem', ->
+        expect(typeof sectionItem.addTodoItem).toBe('function')
 
   describe 'dateFromHeader', ->
     testOutput = null
@@ -118,3 +153,9 @@ describe "TodoParser", ->
 
     it 'parses a date in MMM-Do-YYYY format correctly', ->
       expect(testOutput.format('YYYY MM DD')).toEqual('2015 10 08')
+
+  describe 'inlineTextRange', ->
+
+    it 'returns a 2-dimensional array', ->
+      output = parser.inlineTextRange(1, 3, 15)
+      expect(output).toEqual([[1, 3], [1, 15]])
