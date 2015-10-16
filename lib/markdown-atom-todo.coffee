@@ -1,9 +1,7 @@
 moment = require 'moment'
-MarkdownAtomTodoView = require './markdown-atom-todo-view'
 {CompositeDisposable} = require 'atom'
 
 module.exports = MarkdownAtomTodo =
-  markdownAtomTodoView: null
   modalPanel: null
   subscriptions: null
   regex:
@@ -24,13 +22,8 @@ module.exports = MarkdownAtomTodo =
     S: 'Sa'
     U: 'Su'
 
+  # Activate method gets called the first time the command is called.
   activate: (state) ->
-
-    # Activate method gets called the first time the command is called, not on reload
-
-    @markdownAtomTodoView = new MarkdownAtomTodoView(state.markdownAtomTodoViewState)
-    # Create a hidden modal panel.
-    @modalPanel = atom.workspace.addModalPanel(item: @markdownAtomTodoView.getElement(), visible: false)
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
@@ -50,19 +43,12 @@ module.exports = MarkdownAtomTodo =
           @parseTodoMarkdown()
 
   deactivate: ->
-    @modalPanel.destroy()
     @subscriptions.dispose()
-    @markdownAtomTodoView.destroy()
 
   serialize: ->
-    markdownAtomTodoViewState: @markdownAtomTodoView.serialize()
 
   parseDate: (dateString) ->
     moment(dateString, @dateformat)
-
-  getActiveEditorView: ->
-    textEditor = atom.workspace.getActiveTextEditor()
-    atom.views.getView(textEditor)
 
   dateFromHeader: (header) ->
     datePart = header.substring(3)
