@@ -2,8 +2,9 @@ moment = require 'moment'
 {CompositeDisposable} = require 'atom'
 
 module.exports = MarkdownAtomTodo =
-  modalPanel: null
   subscriptions: null
+
+  # text utils
   regex:
     h2: /^##\s/
     h3: /^###\s/
@@ -11,8 +12,11 @@ module.exports = MarkdownAtomTodo =
     doneBadge: /DONE/
     day: /\s[MTWRSFU]\s/
     duration: /\d+[mhd]/g
+
+  # text utils
   dateformat: 'MMM-Do-YYYY'
 
+  # text utils
   dayKeys:
     M: 'Mo'
     T: 'Tu'
@@ -39,24 +43,30 @@ module.exports = MarkdownAtomTodo =
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
       editor.onDidSave =>
         title = editor.getTitle()
+        #TODO: Make this work with .todo.md files
         if title.split('.').pop() == 'md'
           @parseTodoMarkdown()
 
   deactivate: ->
     @subscriptions.dispose()
 
+  #TODO: I think I don't need this
   serialize: ->
 
+  #text utils
   parseDate: (dateString) ->
     moment(dateString, @dateformat)
 
+  #text utils
   dateFromHeader: (header) ->
     datePart = header.substring(3)
     @parseDate(datePart)
 
+  #model function
   inlineTextRange: (row, start, end) ->
     return [[row, start], [row, end]]
 
+  #model function
   createH2Item: (rowIndex, text) ->
     dateIndexStart = 3
     dateLength =　text.substring(3).length
@@ -65,9 +75,9 @@ module.exports = MarkdownAtomTodo =
     textRange: @inlineTextRange(rowIndex, dateIndexStart, dateIndexStart + dateLength)
     children: []
 
+  #model function
   createH3Item: (rowIndex, text) ->
     title = text.substring(4)
-
     bufferRowIndex: rowIndex
     title: title
     textRange: @inlineTextRange(rowIndex, 4, 4 + title.length)
@@ -81,7 +91,7 @@ module.exports = MarkdownAtomTodo =
         if item.isDone
           @estimateDoneDuration.add(item.estimate.duration)
 
-
+  #model function
   createDurationItem: (rowIndex, regResult) ->
     if regResult?
       text = regResult[0]
@@ -96,6 +106,7 @@ module.exports = MarkdownAtomTodo =
       null
 
   #TODO: estimates
+  # model function
   createTodoItem: (rowIndex, text) ->
     doneIndex = text.search(@regex.doneBadge)
     day = text.match(@regex.day)?[0].trim()
@@ -125,6 +136,7 @@ module.exports = MarkdownAtomTodo =
     todoTree = []
     currentH2 = currentH3 = null
 
+    # model parsing function
     for i in [0..editor.getLastBufferRow()]
       rowText = editor.lineTextForBufferRow(i)
       if @regex.h2.test(rowText)
@@ -146,6 +158,7 @@ module.exports = MarkdownAtomTodo =
 
   # TODO: All this needs to get broken down into functions.
   # it's getting messy.
+  # This should go in a renderer class
   decorateTree: (editor, tree) ->
     weekIndex = 0
     todayString = moment().format('dd')
@@ -183,6 +196,7 @@ module.exports = MarkdownAtomTodo =
             editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
       weekIndex++
 
+  # Renderer method
   destroyMarkers: () ->
     console.log "--destroyMarkers--"
     editor = atom.workspace.getActiveTextEditor()
@@ -192,10 +206,12 @@ module.exports = MarkdownAtomTodo =
       console.log marker
       marker.destroy()
 
+  # renderer method
   createMarker: (editor, range) ->
     marker = editor.markBufferRange(range, mdtodo: true)
     marker
 
+  # entry function.
   parseTodoMarkdown: ->
     # console.log weekStart.format('MM DD YY')
     console.log "--parseMarkdown--"
