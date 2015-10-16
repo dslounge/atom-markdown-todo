@@ -1,36 +1,13 @@
 moment = require 'moment'
-MarkdownAtomTodoView = require './markdown-atom-todo-view'
+parser = require './todo-parser'
+textConsts = require './todo-text-consts'
 {CompositeDisposable} = require 'atom'
 
 module.exports = MarkdownAtomTodo =
-  markdownAtomTodoView: null
-  modalPanel: null
   subscriptions: null
-  regex:
-    h2: /^##\s/
-    h3: /^###\s/
-    item: /^\s*-\s/
-    doneBadge: /DONE/
-    day: /\s[MTWRSFU]\s/
-    duration: /\d+[mhd]/g
-  dateformat: 'MMM-Do-YYYY'
 
-  dayKeys:
-    M: 'Mo'
-    T: 'Tu'
-    W: 'We'
-    R: 'Th'
-    F: 'Fr'
-    S: 'Sa'
-    U: 'Su'
-
+  # Activate method gets called the first time the command is called.
   activate: (state) ->
-
-    # Activate method gets called the first time the command is called, not on reload
-
-    @markdownAtomTodoView = new MarkdownAtomTodoView(state.markdownAtomTodoViewState)
-    # Create a hidden modal panel.
-    @modalPanel = atom.workspace.addModalPanel(item: @markdownAtomTodoView.getElement(), visible: false)
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
@@ -46,120 +23,30 @@ module.exports = MarkdownAtomTodo =
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
       editor.onDidSave =>
         title = editor.getTitle()
+        #TODO: Make this work with .todo.md files
         if title.split('.').pop() == 'md'
           @parseTodoMarkdown()
 
   deactivate: ->
-    @modalPanel.destroy()
     @subscriptions.dispose()
-    @markdownAtomTodoView.destroy()
 
+  #TODO: I think I don't need this
   serialize: ->
-    markdownAtomTodoViewState: @markdownAtomTodoView.serialize()
 
-  parseDate: (dateString) ->
-    moment(dateString, @dateformat)
-
-  getActiveEditorView: ->
-    textEditor = atom.workspace.getActiveTextEditor()
-    atom.views.getView(textEditor)
-
-  dateFromHeader: (header) ->
-    datePart = header.substring(3)
-    @parseDate(datePart)
-
-  inlineTextRange: (row, start, end) ->
-    return [[row, start], [row, end]]
-
-  createH2Item: (rowIndex, text) ->
-    dateIndexStart = 3
-    dateLength =　text.substring(3).length
-    bufferRowIndex: rowIndex
-    startDate: @dateFromHeader(text)
-    textRange: @inlineTextRange(rowIndex, dateIndexStart, dateIndexStart + dateLength)
-    children: []
-
-  createH3Item: (rowIndex, text) ->
-    title = text.substring(4)
-
-    bufferRowIndex: rowIndex
-    title: title
-    textRange: @inlineTextRange(rowIndex, 4, 4 + title.length)
-    children: []
-    estimateTotalDuration: moment.duration()
-    estimateDoneDuration: moment.duration()
-    addTodoItem: (item) ->
-      @children.push item
-      if item.estimate?
-        @estimateTotalDuration.add(item.estimate.duration)
-        if item.isDone
-          @estimateDoneDuration.add(item.estimate.duration)
-
-
-  createDurationItem: (rowIndex, regResult) ->
-    if regResult?
-      text = regResult[0]
-      number = parseInt(text.slice(0, -1))
-      unit = text.slice(-1)
-
-      duration =
-        text: text
-        range: @inlineTextRange(rowIndex, regResult.index, regResult.index + text.length)
-        duration: moment.duration(number, unit)
-    else
-      null
-
-  #TODO: estimates
-  createTodoItem: (rowIndex, text) ->
-    doneIndex = text.search(@regex.doneBadge)
-    day = text.match(@regex.day)?[0].trim()
-
-    # because I'm using the /g flag exec isn't idempotent
-    # reset the lastIndex property from previous run
-    @regex.duration.lastIndex = 0
-    # get the first duration (estimate)
-    estimate = @createDurationItem(rowIndex, @regex.duration.exec(text))
-    #get the second duration (actual)
-    actual = @createDurationItem(rowIndex, @regex.duration.exec(text))
-
-    isDone: (doneIndex != -1)
-    day: @dayKeys[day]
-    doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
-    lineRange: @inlineTextRange(rowIndex, 0, text.length)
-    bufferRowIndex: rowIndex
-    estimate: estimate
-    actual: actual
-
-
-  # TODO: Eventually this should be more generalized.
-  # The header types shouldn't be hardcoded.
-  # But for right now it's so that it fits my todo system.
   makeTodoTree: ->
     editor = atom.workspace.getActiveTextEditor()
-    todoTree = []
-    currentH2 = currentH3 = null
 
+    # Pass each editor line to the parser and get the resulting model
+    parser.reset()
     for i in [0..editor.getLastBufferRow()]
       rowText = editor.lineTextForBufferRow(i)
-      if @regex.h2.test(rowText)
-        currentH3 = null
-        currentH2 = h2Item = @createH2Item(i, rowText)
-        todoTree.push h2Item
+      parser.parseLine(i, rowText)
 
-      else if @regex.h3.test(rowText) and currentH2?
-        #ignore H3 that aren't under H2
-        currentH3 = h3Item = @createH3Item(i, rowText)
-        currentH2.children.push h3Item
-
-      else if @regex.item.test(rowText) and currentH3?
-        #ignore items that aren't under H3
-        item = @createTodoItem(i, rowText)
-        currentH3.addTodoItem(item)
-
-    todoTree
+    parser.todoModel
 
   # TODO: All this needs to get broken down into functions.
   # it's getting messy.
+  # This should go in a renderer class
   decorateTree: (editor, tree) ->
     weekIndex = 0
     todayString = moment().format('dd')
@@ -197,22 +84,21 @@ module.exports = MarkdownAtomTodo =
             editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
       weekIndex++
 
-  destroyMarkers: () ->
-    console.log "--destroyMarkers--"
+  # Renderer method
+  destroyMarkers: ->
     editor = atom.workspace.getActiveTextEditor()
-    markerList = editor.findMarkers(mdtodo:true)
-    console.log markerList.length
+    markerList = editor.findMarkers(mdtodo: true)
     for marker in markerList
       console.log marker
       marker.destroy()
 
+  # renderer method
   createMarker: (editor, range) ->
     marker = editor.markBufferRange(range, mdtodo: true)
     marker
 
+  # entry function.
   parseTodoMarkdown: ->
-    # console.log weekStart.format('MM DD YY')
-    console.log "--parseMarkdown--"
     @destroyMarkers()
     editor = atom.workspace.getActiveTextEditor()
     todoTree = @makeTodoTree()
