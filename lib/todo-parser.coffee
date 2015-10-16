@@ -22,8 +22,8 @@ module.exports =
   inlineTextRange: (row, start, end) ->
     return [[row, start], [row, end]]
 
-  createH2Item: (index, text) ->
-    console.log "--createH2Item--: #{index}, #{text}"
+  parseH2Line: (index, text) ->
+    console.log "--parseH2Line--: #{index}, #{text}"
     dateIndexStart = 3
     dateLength =　text.substring(3).length
     bufferRowIndex: index
@@ -31,8 +31,8 @@ module.exports =
     textRange: @inlineTextRange(index, dateIndexStart, dateIndexStart + dateLength)
     children: []
 
-  createH3Item: (index, text) ->
-    console.log "--createH3Item--: #{index}, #{text}"
+  parseH3Line: (index, text) ->
+    console.log "--parseH3Line--: #{index}, #{text}"
     title = text.substring(4)
     bufferRowIndex: index
     title: title
@@ -47,7 +47,7 @@ module.exports =
         if item.isDone
           @estimateDoneDuration.add(item.estimate.duration)
 
-  createTodoItem: (rowIndex, text) ->
+  parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(@regex.doneBadge)
     day = text.match(@regex.day)?[0].trim()
 
@@ -87,17 +87,17 @@ module.exports =
     console.log "parseLine: #{index}, #{text}"
     if textConsts.regex.h2.test(text)
       @currentH3 = null
-      @currentH2 = h2Item = @createH2Item(index, text)
+      @currentH2 = h2Item = @parseH2Line(index, text)
       console.log "push h2: #{@currentH2}"
       @todoModel.push h2Item
     else if textConsts.regex.h3.test(text) and @currentH2?
       #ignore H3 that aren't under H2
-      @currentH3 = h3Item = @createH3Item(index, text)
+      @currentH3 = h3Item = @parseH3Line(index, text)
       @currentH2.children.push h3Item
 
     else if textConsts.regex.item.test(text) and @currentH3?
       #ignore items that aren't under H3
-      item = @createTodoItem(index, text)
+      item = @parseTodoLine(index, text)
       @currentH3.addTodoItem(item)
     else
       @ignoreLine(index, text)

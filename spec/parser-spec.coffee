@@ -27,41 +27,43 @@ describe "TodoParser", ->
       testReturn = parser.parseLine(1, "Hello")
       expect(testReturn).toBeUndefined()
 
-    it "calls createH2Item on a valid H2 row", ->
-      spyOn(parser, 'createH2Item')
+    it "calls parseH2Line on a valid H2 row", ->
+      spyOn(parser, 'parseH2Line')
       parser.parseLine(1, h2_valid)
-      expect(parser.createH2Item).toHaveBeenCalled()
+      expect(parser.parseH2Line).toHaveBeenCalled()
 
-    it "calls createH3Item on a valid H3 row and existing H2", ->
-      console.log "-- test createH3Item-- "
-      spyOn(parser, 'createH3Item')
+    it "calls parseH3Line on a valid H3 row and existing H2", ->
+      console.log "-- test parseH3Line-- "
+      spyOn(parser, 'parseH3Line')
       parser.parseLine(1, h2_valid)
       parser.parseLine(2, h3_valid)
-      expect(parser.createH3Item).toHaveBeenCalled()
+      expect(parser.parseH3Line).toHaveBeenCalled()
 
     it "calls ignoreLine on a valid H3 and no existing H2", ->
-      console.log "-- test createH3Item-- "
-      spyOn(parser, 'createH3Item')
+      console.log "-- test parseH3Line-- "
+      spyOn(parser, 'parseH3Line')
       spyOn(parser, 'ignoreLine')
       parser.parseLine(2, h3_valid)
       expect(parser.ignoreLine).toHaveBeenCalled()
-      expect(parser.createH3Item).not.toHaveBeenCalled()
+      expect(parser.parseH3Line).not.toHaveBeenCalled()
 
-    it "calls createTodoItem on a valid list row and existing H2 and H3", ->
-      spyOn(parser, 'createTodoItem')
+    it "calls parseTodoLine on a valid list row and existing H2 and H3", ->
+      spyOn(parser, 'parseTodoLine')
       parser.parseLine(1, h2_valid)
       parser.parseLine(2, h3_valid)
       parser.parseLine(3, item_valid[0])
-      expect(parser.createTodoItem).toHaveBeenCalled()
+      expect(parser.parseTodoLine).toHaveBeenCalled()
 
     it "calls ignoreLine on a valid list row and no existing parents", ->
-      spyOn(parser, 'createTodoItem')
+      spyOn(parser, 'parseTodoLine')
       spyOn(parser, 'ignoreLine')
       parser.parseLine(3, item_valid[0])
       expect(parser.ignoreLine).toHaveBeenCalled()
-      expect(parser.createTodoItem).not.toHaveBeenCalled()
+      expect(parser.parseTodoLine).not.toHaveBeenCalled()
 
     it "calls ignoreLine on an item it doesn't understand", ->
       spyOn(parser, 'ignoreLine')
       parser.parseLine(4, h1_valid)
       expect(parser.ignoreLine).toHaveBeenCalled()
+
+  # describe "parseH2"
