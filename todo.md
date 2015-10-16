@@ -35,7 +35,10 @@ Some goals:
 - W   DONE  decorate items due today
 - W   2h  DONE Identify time estimates in items
 - W   1h  DONE  Display estimate sum in title
-- R   4h  Figure out how to run unit tests for functions in this extension
+- F   4h  DONE  Figure out how to run unit tests for functions in this extension
+- F   4h  DONE  Separate out parser
+- S   4h  Separate out decorator
+- S   1h  Don't count items with > in the day.
 - R   4h  Add custom badges
 
 ### Some other category
