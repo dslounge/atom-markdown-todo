@@ -1,30 +1,13 @@
 moment = require 'moment'
+parser = require './todo-parser'
+textConsts = require './todo-text-consts'
 {CompositeDisposable} = require 'atom'
 
 module.exports = MarkdownAtomTodo =
   subscriptions: null
-
-  # text utils
-  regex:
-    h2: /^##\s/
-    h3: /^###\s/
-    item: /^\s*-\s/
-    doneBadge: /DONE/
-    day: /\s[MTWRSFU]\s/
-    duration: /\d+[mhd]/g
-
-  # text utils
-  dateformat: 'MMM-Do-YYYY'
-
-  # text utils
-  dayKeys:
-    M: 'Mo'
-    T: 'Tu'
-    W: 'We'
-    R: 'Th'
-    F: 'Fr'
-    S: 'Sa'
-    U: 'Su'
+  regex: textConsts.regex #TODO: refactor out
+  dateformat: textConsts.formats.dateformat #TODO: refactor out
+  dayKeys: textConsts.formats.dayKeys #TODO: refactor out
 
   # Activate method gets called the first time the command is called.
   activate: (state) ->
@@ -53,108 +36,16 @@ module.exports = MarkdownAtomTodo =
   #TODO: I think I don't need this
   serialize: ->
 
-  #text utils
-  parseDate: (dateString) ->
-    moment(dateString, @dateformat)
-
-  #text utils
-  dateFromHeader: (header) ->
-    datePart = header.substring(3)
-    @parseDate(datePart)
-
-  #model function
-  inlineTextRange: (row, start, end) ->
-    return [[row, start], [row, end]]
-
-  #model function
-  createH2Item: (rowIndex, text) ->
-    dateIndexStart = 3
-    dateLength =　text.substring(3).length
-    bufferRowIndex: rowIndex
-    startDate: @dateFromHeader(text)
-    textRange: @inlineTextRange(rowIndex, dateIndexStart, dateIndexStart + dateLength)
-    children: []
-
-  #model function
-  createH3Item: (rowIndex, text) ->
-    title = text.substring(4)
-    bufferRowIndex: rowIndex
-    title: title
-    textRange: @inlineTextRange(rowIndex, 4, 4 + title.length)
-    children: []
-    estimateTotalDuration: moment.duration()
-    estimateDoneDuration: moment.duration()
-    addTodoItem: (item) ->
-      @children.push item
-      if item.estimate?
-        @estimateTotalDuration.add(item.estimate.duration)
-        if item.isDone
-          @estimateDoneDuration.add(item.estimate.duration)
-
-  #model function
-  createDurationItem: (rowIndex, regResult) ->
-    if regResult?
-      text = regResult[0]
-      number = parseInt(text.slice(0, -1))
-      unit = text.slice(-1)
-
-      duration =
-        text: text
-        range: @inlineTextRange(rowIndex, regResult.index, regResult.index + text.length)
-        duration: moment.duration(number, unit)
-    else
-      null
-
-  #TODO: estimates
-  # model function
-  createTodoItem: (rowIndex, text) ->
-    doneIndex = text.search(@regex.doneBadge)
-    day = text.match(@regex.day)?[0].trim()
-
-    # because I'm using the /g flag exec isn't idempotent
-    # reset the lastIndex property from previous run
-    @regex.duration.lastIndex = 0
-    # get the first duration (estimate)
-    estimate = @createDurationItem(rowIndex, @regex.duration.exec(text))
-    #get the second duration (actual)
-    actual = @createDurationItem(rowIndex, @regex.duration.exec(text))
-
-    isDone: (doneIndex != -1)
-    day: @dayKeys[day]
-    doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
-    lineRange: @inlineTextRange(rowIndex, 0, text.length)
-    bufferRowIndex: rowIndex
-    estimate: estimate
-    actual: actual
-
-
-  # TODO: Eventually this should be more generalized.
-  # The header types shouldn't be hardcoded.
-  # But for right now it's so that it fits my todo system.
   makeTodoTree: ->
     editor = atom.workspace.getActiveTextEditor()
-    todoTree = []
-    currentH2 = currentH3 = null
 
-    # model parsing function
+    # Pass each editor line to the parser and get the resulting model
+    parser.reset()
     for i in [0..editor.getLastBufferRow()]
       rowText = editor.lineTextForBufferRow(i)
-      if @regex.h2.test(rowText)
-        currentH3 = null
-        currentH2 = h2Item = @createH2Item(i, rowText)
-        todoTree.push h2Item
+      parser.parseLine(i, rowText)
 
-      else if @regex.h3.test(rowText) and currentH2?
-        #ignore H3 that aren't under H2
-        currentH3 = h3Item = @createH3Item(i, rowText)
-        currentH2.children.push h3Item
-
-      else if @regex.item.test(rowText) and currentH3?
-        #ignore items that aren't under H3
-        item = @createTodoItem(i, rowText)
-        currentH3.addTodoItem(item)
-
-    todoTree
+    parser.todoModel
 
   # TODO: All this needs to get broken down into functions.
   # it's getting messy.
@@ -197,10 +88,10 @@ module.exports = MarkdownAtomTodo =
       weekIndex++
 
   # Renderer method
-  destroyMarkers: () ->
+  destroyMarkers: ->
     console.log "--destroyMarkers--"
     editor = atom.workspace.getActiveTextEditor()
-    markerList = editor.findMarkers(mdtodo:true)
+    markerList = editor.findMarkers(mdtodo: true)
     console.log markerList.length
     for marker in markerList
       console.log marker
