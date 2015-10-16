@@ -172,13 +172,42 @@ describe "TodoParser", ->
 
 
     describe 'days', ->
-      it 'interprets correctly all days of the week'
+      it 'interprets correctly all days of the week', ->
+        days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
+        expectedDays = ['Mo','Tu','We','Th','Fr','Sa','Su']
+        for day, i in days
+          testLine = "- #{day}   2h  A task for Tuesday"
+          output = parser.parseTodoLine(1, testLine)
+          expect(output.day).toEqual(expectedDays[i])
 
       #TODO: What happens if a line doesn't have a day?
 
     describe 'estimate', ->
-      it 'has an estimate duration if it finds a valid duration string', ->
-      it 'has a null duration if it does not find a valid duration string', ->
+
+      describe 'with duration string found', ->
+        beforeEach ->
+          testLine = '- T   2h  A task for Tuesday'
+          output = parser.parseTodoLine(1, testLine)
+
+        it 'has an estimate if it finds a valid duration string', ->
+          expect(output.estimate).not.toBeNull()
+
+        it 'has a moment duration in the estimate', ->
+          expect(output.estimate.duration._milliseconds).not.toBeNull()
+
+        it 'has text in the estimate', ->
+          expect(output.estimate.text).toEqual('2h')
+
+        it 'has a range in the estimate', ->
+          expect(output.estimate.range).toEqual([[1,6],[1,8]])
+
+      describe 'with duration string not found', ->
+
+        it 'has a null estimate if it does not find a valid duration string', ->
+          testLine = '- T   A task for Tuesday'
+          output = parser.parseTodoLine(1, testLine)
+          expect(output.estimate).toBeNull()
+
 
   describe 'dateFromHeader', ->
     testOutput = null
