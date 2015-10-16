@@ -128,6 +128,58 @@ describe "TodoParser", ->
       it 'returns a section object with valid addTodoItem', ->
         expect(typeof sectionItem.addTodoItem).toBe('function')
 
+  describe 'parseTodoLine', ->
+    output = testLine = null
+
+    describe 'basic validity', ->
+
+      beforeEach ->
+        testLine = '- T   2h  DONE  A task for Tuesday'
+        output = parser.parseTodoLine(1, testLine)
+
+      it 'returns something', ->
+        expect(output).not.toBeNull()
+
+      it 'returns a todo item with a valid lineRange', ->
+        expect(output.lineRange).toEqual([[1, 0],[1, testLine.length]])
+
+      it 'returns a todo item with a valid bufferRowIndex', ->
+        expect(output.bufferRowIndex).toEqual(1)
+
+    describe 'todoItem.isDone', ->
+
+      describe 'when todo line contains DONE', ->
+        beforeEach ->
+          testLine = '- T   2h  DONE  A task for Tuesday'
+          output = parser.parseTodoLine(1, testLine)
+
+        it 'is marked as done', ->
+          expect(output.isDone).toBe(true)
+
+        it 'doneBadgeRange is a valid range if DONE is found', ->
+          expect(output.doneBadgeRange).toEqual([[1,10],[1, 14]])
+
+      describe 'when todo line does not contain DONE', ->
+        beforeEach ->
+          testLine = '- T   2h  A task for Tuesday'
+          output = parser.parseTodoLine(1, testLine)
+
+        it 'is not marked as done', ->
+          expect(output.isDone).toBeFalsy()
+
+        it 'doneBadgeRange is null', ->
+          expect(output.doneBadgeRange).toBeNull()
+
+
+    describe 'days', ->
+      it 'interprets correctly all days of the week'
+
+      #TODO: What happens if a line doesn't have a day?
+
+    describe 'estimate', ->
+      it 'has an estimate duration if it finds a valid duration string', ->
+      it 'has a null duration if it does not find a valid duration string', ->
+
   describe 'dateFromHeader', ->
     testOutput = null
 

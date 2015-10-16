@@ -23,7 +23,7 @@ module.exports =
     return [[row, start], [row, end]]
 
   parseH2Line: (index, text) ->
-    console.log "--parseH2Line--: #{index}, #{text}"
+    # console.log "--parseH2Line--: #{index}, #{text}"
     dateStartIndex = 3
     dateLength =　text.substring(dateStartIndex).length
     bufferRowIndex: index
@@ -32,7 +32,7 @@ module.exports =
     children: []
 
   parseH3Line: (index, text) ->
-    console.log "--parseH3Line--: #{index}, #{text}"
+    # console.log "--parseH3Line--: #{index}, #{text}"
     title = text.substring(4)
     bufferRowIndex: index
     title: title
@@ -48,24 +48,26 @@ module.exports =
           @estimateDoneDuration.add(item.estimate.duration)
 
   parseTodoLine: (rowIndex, text) ->
-    doneIndex = text.search(@regex.doneBadge)
-    day = text.match(@regex.day)?[0].trim()
+    doneIndex = text.search(textConsts.regex.doneBadge)
+    day = text.match(textConsts.regex.day)?[0].trim()
 
     # because I'm using the /g flag exec isn't idempotent
     # reset the lastIndex property from previous run
-    @regex.duration.lastIndex = 0
+    textConsts.regex.duration.lastIndex = 0
     # get the first duration (estimate)
-    estimate = @createDurationItem(rowIndex, @regex.duration.exec(text))
+    estimate = @createDurationItem(rowIndex, textConsts.regex.duration.exec(text))
     #get the second duration (actual)
-    actual = @createDurationItem(rowIndex, @regex.duration.exec(text))
+    actual = @createDurationItem(rowIndex, textConsts.regex.duration.exec(text))
 
-    isDone: (doneIndex != -1)
-    day: @dayKeys[day]
-    doneBadgeRange: @inlineTextRange(rowIndex, doneIndex, doneIndex + 4)
+    isDone = (doneIndex != -1)
+
+    isDone: isDone
+    day: textConsts.formats.dayKeys[day]
+    doneBadgeRange: if isDone then @inlineTextRange(rowIndex, doneIndex, doneIndex + 4) else null
     lineRange: @inlineTextRange(rowIndex, 0, text.length)
     bufferRowIndex: rowIndex
     estimate: estimate
-    actual: actual
+    actual: actual #TODO might drop support for this
 
   ignoreLine: (rowIndex, text) ->
 
