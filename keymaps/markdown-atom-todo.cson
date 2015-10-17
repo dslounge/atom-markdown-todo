@@ -8,5 +8,4 @@
 # For more detailed documentation see
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-workspace':
-  'ctrl-alt-cmd-o': 'markdown-atom-todo:parse todo'
-  'ctrl-alt-cmd-i': 'markdown-atom-todo:destroy markers'
+  'ctrl-alt-cmd-o': 'markdown-atom-todo:toggle'
