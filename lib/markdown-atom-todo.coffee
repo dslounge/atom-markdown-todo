@@ -23,7 +23,7 @@ module.exports = MarkdownAtomTodo =
         extension = editor.getTitle().split('.').pop()
         #TODO: Make this work with .todo.md files
         if @todoMode and (extension == 'md')
-          @parseTodoMarkdown()
+          @showTodo()
 
   deactivate: ->
     @subscriptions.dispose()
