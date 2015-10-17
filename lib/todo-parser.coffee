@@ -97,7 +97,7 @@ module.exports =
       @currentH3 = h3Item = @parseH3Line(index, text)
       @currentH2.children.push h3Item
 
-    else if textConsts.regex.item.test(text) and @currentH3?
+    else if textConsts.regex.item.test(text) and textConsts.regex.day.test(text) and @currentH3?
       #ignore items that aren't under H3
       item = @parseTodoLine(index, text)
       @currentH3.addTodoItem(item)
