@@ -19,6 +19,7 @@ Some goals:
 - S   3h  Write some tests for decorator
 - S   1h  Write better description for this project
 - S   2h  Submit as an atom extension
+- S   2h  Clicking on a day should highlight those items.
 - >R   4h  Add custom badges
 
 ## Oct 8th 2015
