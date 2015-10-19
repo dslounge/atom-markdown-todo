@@ -22,30 +22,65 @@ module.exports =
   inlineTextRange: (row, start, end) ->
     return [[row, start], [row, end]]
 
+  createDayDurations: ->
+    dict = {}
+    for day in textConsts.days
+      dict[day] = moment.duration()
+    dict
+
   parseH2Line: (index, text) ->
     # console.log "--parseH2Line--: #{index}, #{text}"
     dateStartIndex = 3
     dateLength =　text.substring(dateStartIndex).length
     bufferRowIndex: index
     startDate: @dateFromHeader(text)
+    dayDurations: @createDayDurations()
     textRange: @inlineTextRange(index, dateStartIndex, dateStartIndex + dateLength)
     children: []
+    getEstimatesPerDay: ->
+      for section in @children
+        sectionEstimates = section.getEstimatesPerDay()
+        for day in textConsts.days
+          @dayDurations[day].add(sectionEstimates[day])
+
+      return @dayDurations
+    getTotalDuration: ->
+      duration = moment.duration()
+      for section in @children
+        duration.add(section.getTotalDuration())
+      duration
+
+    getDoneDuration: ->
+      duration = moment.duration()
+      for section in @children
+        duration.add(section.getDoneDuration())
+      duration
 
   parseH3Line: (index, text) ->
-    # console.log "--parseH3Line--: #{index}, #{text}"
     title = text.substring(4)
     bufferRowIndex: index
     title: title
     textRange: @inlineTextRange(index, 4, 4 + title.length)
     children: []
+    dayDurations: @createDayDurations()
     estimateTotalDuration: moment.duration()
     estimateDoneDuration: moment.duration()
+    getTotalDuration: ->
+      @estimateTotalDuration
+    getDoneDuration: ->
+      @estimateDoneDuration
     addTodoItem: (item) ->
       @children.push item
+      # TODO I don't think this needs to be precomputed
       if item?.estimate?
         @estimateTotalDuration.add(item.estimate.duration)
         if item.isDone
           @estimateDoneDuration.add(item.estimate.duration)
+    getEstimatesPerDay: ->
+      for item, i in @children
+        if item.dayString? and item.estimate?
+          @dayDurations[item.dayString].add(item.estimate.duration)
+      @dayDurations
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)
@@ -62,6 +97,7 @@ module.exports =
     isDone = (doneIndex != -1)
 
     isDone: isDone
+    dayString: day
     day: textConsts.formats.dayKeys[day]
     doneBadgeRange: if isDone then @inlineTextRange(rowIndex, doneIndex, doneIndex + 4) else null
     lineRange: @inlineTextRange(rowIndex, 0, text.length)

@@ -8,6 +8,7 @@ describe "TodoParser", ->
   item_valid = ['- T   2h  DONE  A task for Tuesday',
                 ' - T   2h  DONE  A task for Tuesday',
                 '     - T   2h  DONE  A task for Tuesday']
+  days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
 
   beforeEach ->
     parser.reset()
@@ -33,14 +34,12 @@ describe "TodoParser", ->
       expect(parser.parseH2Line).toHaveBeenCalled()
 
     it 'calls parseH3Line on a valid H3 row and existing H2', ->
-      console.log "-- test parseH3Line-- "
       spyOn(parser, 'parseH3Line')
       parser.parseLine(1, h2_valid)
       parser.parseLine(2, h3_valid)
       expect(parser.parseH3Line).toHaveBeenCalled()
 
     it 'calls ignoreLine on a valid H3 and no existing H2', ->
-      console.log "-- test parseH3Line-- "
       spyOn(parser, 'parseH3Line')
       spyOn(parser, 'ignoreLine')
       parser.parseLine(2, h3_valid)
@@ -93,6 +92,33 @@ describe "TodoParser", ->
       it 'returns a week object with an empty children list', ->
         expect(week.children).toEqual([])
 
+      it 'returns a week object with a getEstimatesPerDay function', ->
+        expect(typeof week.getEstimatesPerDay).toBe('function')
+
+      describe 'getEstimatesPerDay', ->
+
+        it 'returns an object with empty day values when it has no items', ->
+          testObj = week.getEstimatesPerDay()
+          for day in days
+            expect(testObj[day]._milliseconds).not.toBeNull()
+
+        it 'adds up the time estimates correctly', ->
+          for i in [1..3]
+            sectionItem = parser.parseH3Line(rowIndex, "### project #{i} ")
+            for day, i in days
+              testLine = "- #{day}   #{i}h  A quick brown fox"
+              lineItem = parser.parseTodoLine(i, testLine)
+              sectionItem.addTodoItem(lineItem)
+            week.children.push(sectionItem)
+
+          testObj = week.getEstimatesPerDay()
+          for day, i in days
+            expect(testObj[day].asHours()).toEqual(i * 3)
+
+      describe 'getTotalDuration', ->
+
+      describe 'getDoneDuration', ->
+
   describe 'parseH3Line', ->
 
     describe 'with valid input', ->
@@ -125,8 +151,35 @@ describe "TodoParser", ->
         # moment durations don't have a isA boolean flag for testing.
         expect(sectionItem.estimateDoneDuration._milliseconds).not.toBeNull()
 
-      it 'returns a section object with valid addTodoItem', ->
+      it 'returns a section object with an addTodoItem function', ->
         expect(typeof sectionItem.addTodoItem).toBe('function')
+
+      it 'returns a section object with a getEstimatesPerDay function', ->
+        expect(typeof sectionItem.getEstimatesPerDay).toBe('function')
+
+      describe 'getEstimatesPerDay', ->
+
+        it 'returns an object with empty day values when it has no items', ->
+          testObj = sectionItem.getEstimatesPerDay()
+          for day in days
+            expect(testObj[day]._milliseconds).not.toBeNull()
+
+        it 'returns an object with correct day values for each day', ->
+          for day, i in days
+            testLine = "- #{day}   #{i}h  A quick brown fox"
+            lineItem = parser.parseTodoLine(i, testLine)
+            sectionItem.addTodoItem(lineItem)
+          testObj = sectionItem.getEstimatesPerDay()
+          for day, i in days
+            expect(testObj[day].hours()).toEqual(i)
+
+        it 'adds up estimate durations for all tasks in a day', ->
+          for i in [1..10]
+            testLine = "- F  #{i}h  A quick brown fox"
+            lineItem = parser.parseTodoLine(i, testLine)
+            sectionItem.addTodoItem(lineItem)
+          testObj = sectionItem.getEstimatesPerDay()
+          expect(testObj['F'].asHours()).toEqual((10 * 11) / 2)
 
   describe 'parseTodoLine', ->
     output = testLine = null
@@ -172,8 +225,14 @@ describe "TodoParser", ->
 
 
     describe 'days', ->
+
+      it 'keeps the day string in the dayString field', ->
+        for day, i in days
+          testLine = "- #{day}   2h  A task for Tuesday"
+          output = parser.parseTodoLine(1, testLine)
+          expect(output.dayString).toEqual(days[i])
+
       it 'interprets correctly all days of the week', ->
-        days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
         expectedDays = ['Mo','Tu','We','Th','Fr','Sa','Su']
         for day, i in days
           testLine = "- #{day}   2h  A task for Tuesday"
@@ -239,6 +298,14 @@ describe "TodoParser", ->
     it 'returns a 2-dimensional array', ->
       output = parser.inlineTextRange(1, 3, 15)
       expect(output).toEqual([[1, 3], [1, 15]])
+
+  describe 'createDayDurations', ->
+
+    it 'returns a dict of moment objects for each day', ->
+      days = ['U', 'M', 'T', 'W', 'R', 'F', 'S']
+      testObj = parser.createDayDurations()
+      for day in days
+        expect(testObj[day]._milliseconds).not.toBeNull()
 
   #TODO: Add tests for createDurationItem
   describe 'createDurationItem', ->
