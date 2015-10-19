@@ -50,11 +50,28 @@ atom-text-editor::shadow{
   }
 }
 
-/* overlays are outside the shadow root */
-.section-estimate{
-  .badge;
-  background-color: rgba(0, 136, 255, 0.5);
+.same-line-overlay{
   margin-top: -1.5em;
   margin-left: 1em;
+}
+
+.overlay-badge{
+  padding: 0 .3em;
+  margin: 0px 5px;
+  font-weight: normal;
+  border-radius: .4em;
+  background-color: #3e4451;
   height: 1.4em !important;
+  display:inline-block;
+}
+
+/* overlays are outside the shadow root */
+.section-estimate{
+  .overlay-badge;
+  background-color: rgba(0, 136, 255, 0.3);
+}
+
+.hours-summary{
+  .overlay-badge;
+  background-color: rgba(100, 100, 100, 0.3);
 }

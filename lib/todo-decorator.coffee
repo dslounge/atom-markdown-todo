@@ -1,4 +1,6 @@
 moment = require 'moment'
+textConsts = require './todo-text-consts'
+## TODO: This is really messy and needs cleanup and testing.
 module.exports = todoDecorator =
 
   createMarker: (editor, range) ->
@@ -14,17 +16,51 @@ module.exports = todoDecorator =
     marker = @createMarker(editor, week.textRange)
     editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
 
+    #TODO: Is there a less dumb way to do this without jquery?
+    overlayElement = document.createElement('div')
+    overlayElement.classList.add('same-line-overlay')
+
+    completedElement = document.createElement('div')
+    completedElement.classList.add('section-estimate')
+
+    daysElement = document.createElement('div')
+    daysElement.classList.add('hours-summary')
+
+    overlayElement.appendChild(completedElement)
+    overlayElement.appendChild(daysElement)
+
+    # Make hours summary
+    completedHours = week.getDoneDuration().asHours()
+    totalHours = week.getTotalDuration().asHours()
+    hourSummary = "#{completedHours}h / #{totalHours}h"
+
+    # Make per day summary
+    daySummaries = []
+    perDay = week.getEstimatesPerDay()
+    for day in textConsts.days
+      hours = perDay[day].asHours()
+      daySummaries.push "#{day}:#{hours}h"
+    daySummaryString = daySummaries.join(", ")
+
+    completedElement.textContent = hourSummary
+    daysElement.textContent = daySummaryString
+    editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
+
   decorateSection: (editor, section) ->
     marker = @createMarker(editor, section.textRange)
     # Create message element
+    overlay = document.createElement('div')
+    overlay.classList.add('same-line-overlay')
+
     estElement = document.createElement('div')
     estElement.classList.add('section-estimate')
+    overlay.appendChild(estElement)
 
     totalHours = section.estimateTotalDuration.asHours()
     completedHours = section.estimateDoneDuration.asHours()
 
     estElement.textContent = "#{completedHours} / #{totalHours} hours completed."
-    editor.decorateMarker(marker, type: 'overlay', item: estElement)
+    editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
   decorateItem: (editor, item, isFirstWeek, todayString) ->
     #-- Decorate item

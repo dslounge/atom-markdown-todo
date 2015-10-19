@@ -22,7 +22,7 @@ Extension Features:
 
 ### Another Project
 
-- U   A task for Sunday
+- U   2h A task for Sunday
 - M   A task for Monday
 - T   A task for Tuesday
 - W   A task for Wednesday
