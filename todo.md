@@ -12,6 +12,15 @@ Some goals:
 - I would like to be able to specify badges (all caps text), and colors for those badges.
   - The DONE text would be a badge, for example.
 
+## Oct 19 2015
+
+### This Project
+
+- S   3h  Write some tests for decorator
+- S   1h  Write better description for this project
+- S   2h  Submit as an atom extension
+- >R   4h  Add custom badges
+
 ## Oct 8th 2015
 
 ### This project
@@ -37,25 +46,5 @@ Some goals:
 - W   1h  DONE  Display estimate sum in title
 - F   4h  DONE  Figure out how to run unit tests for functions in this extension
 - F   4h  DONE  Separate out parser
-- S   4h  Separate out decorator
-- S   1h  Don't count items with > in the day.
-- R   4h  Add custom badges
-
-### Some other category
-
-- U   DONE  Some thing I did on Sunday
-- U   Something to do on Sunday
-- M   Something to do on Monday
-- W   Something to do on Wednesday
-- R   Something to do on Thursday
-- F   Something to do on Friday
-- S   Something to do on Saturday
-
-> Here are some alternative dates for testing
-## Dec 15th 2015
-
-## Jan 1st 2016
-
-## Feb 2nd 2017
-
-## Mar 3rd 2015
+- S   4h  DONE  Separate out decorator
+- S   1h  DONE  Don't count items with > in the day.
