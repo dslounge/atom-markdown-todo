@@ -16,6 +16,8 @@ Some goals:
 
 ### This Project
 
+- T   DONE  1h  Fix time issues
+- S   1h  Find a better color scheme
 - S   3h  Write some tests for decorator
 - S   1h  Write better description for this project
 - S   2h  Submit as an atom extension

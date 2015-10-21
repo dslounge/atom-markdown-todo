@@ -12,8 +12,19 @@ module.exports = todoDecorator =
     for marker in markerList
       marker.destroy()
 
+  #TODO There might be a bug here since .hours() returns max 23
+  getDurationString: (momentDuration) ->
+    if momentDuration.minutes() != 0
+      hours = momentDuration.hours()
+      minutes = momentDuration.minutes()
+      "#{hours}h#{minutes}m"
+    else
+      hours = momentDuration.asHours()
+      "#{hours}h"
+
   decorateWeek: (editor, week) ->
     marker = @createMarker(editor, week.textRange)
+    #TODO: find a better class name.
     editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
 
     #TODO: Is there a less dumb way to do this without jquery?
@@ -30,16 +41,17 @@ module.exports = todoDecorator =
     overlayElement.appendChild(daysElement)
 
     # Make hours summary
-    completedHours = week.getDoneDuration().asHours()
-    totalHours = week.getTotalDuration().asHours()
-    hourSummary = "#{completedHours}h / #{totalHours}h"
+    completedHours = @getDurationString(week.getDoneDuration())
+    totalHours = @getDurationString(week.getTotalDuration())
+    hourSummary = "#{completedHours} / #{totalHours}"
 
     # Make per day summary
     daySummaries = []
     perDay = week.getEstimatesPerDay()
     for day in textConsts.days
-      hours = perDay[day].asHours()
-      daySummaries.push "#{day}:#{hours}h"
+      durationString = @getDurationString(perDay[day])
+      daySummaries.push "#{day}:#{durationString}"
+
     daySummaryString = daySummaries.join(", ")
 
     completedElement.textContent = hourSummary
@@ -56,10 +68,10 @@ module.exports = todoDecorator =
     estElement.classList.add('section-estimate')
     overlay.appendChild(estElement)
 
-    totalHours = section.estimateTotalDuration.asHours()
-    completedHours = section.estimateDoneDuration.asHours()
+    totalHours = @getDurationString(section.estimateTotalDuration)
+    completedHours = @getDurationString(section.estimateDoneDuration)
 
-    estElement.textContent = "#{completedHours} / #{totalHours} hours completed."
+    estElement.textContent = "#{completedHours} / #{totalHours} completed."
     editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
   decorateItem: (editor, item, isFirstWeek, todayString) ->
