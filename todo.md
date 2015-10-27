@@ -12,17 +12,25 @@ Some goals:
 - I would like to be able to specify badges (all caps text), and colors for those badges.
   - The DONE text would be a badge, for example.
 
+## Oct 26 2015
+
+### This Project
+
+- T   1h  Add a progress bar to time estimates.
+- W   1h  Clean up project description
+- F   1h  Use a better color scheme
+- U   1h  Submit as an atom extension
+
+- >M   1h  Write some tests for decorator
+- >S   2h  Maybe sections should be optional.
+- >S   2h  Clicking on a day overlay should highlight those items.
+- >R   4h  Add custom badges
+
 ## Oct 19 2015
 
 ### This Project
 
 - T   DONE  1h  Fix time issues
-- S   1h  Find a better color scheme
-- S   3h  Write some tests for decorator
-- S   1h  Write better description for this project
-- S   2h  Submit as an atom extension
-- S   2h  Clicking on a day should highlight those items.
-- >R   4h  Add custom badges
 
 ## Oct 8th 2015
 
