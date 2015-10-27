@@ -1,5 +1,7 @@
 moment = require 'moment'
+$ = require 'jquery'
 textConsts = require './todo-text-consts'
+
 ## TODO: This is really messy and needs cleanup and testing.
 module.exports = todoDecorator =
 
@@ -22,23 +24,32 @@ module.exports = todoDecorator =
       hours = momentDuration.asHours()
       "#{hours}h"
 
+  createWeekOverlayElement: (hourSummary, daySummaryString) ->
+    template = """
+    <div class="same-line-overlay">
+      <div class="section-estimate">
+        #{hourSummary}
+      </div>
+      <div class="hours-summary">
+        #{daySummaryString}
+      </div>
+    </div>
+    """
+    $('<div/>').html(template).contents()[0]
+
+  createSectionOverlayElement: (text) ->
+    template = """
+    <div class="same-line-overlay">
+      <div class="section-estimate">
+        #{text}
+      </div>
+    """
+    $('<div/>').html(template).contents()[0]
+
   decorateWeek: (editor, week) ->
     marker = @createMarker(editor, week.textRange)
     #TODO: find a better class name.
     editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
-
-    #TODO: Is there a less dumb way to do this without jquery?
-    overlayElement = document.createElement('div')
-    overlayElement.classList.add('same-line-overlay')
-
-    completedElement = document.createElement('div')
-    completedElement.classList.add('section-estimate')
-
-    daysElement = document.createElement('div')
-    daysElement.classList.add('hours-summary')
-
-    overlayElement.appendChild(completedElement)
-    overlayElement.appendChild(daysElement)
 
     # Make hours summary
     completedHours = @getDurationString(week.getDoneDuration())
@@ -51,27 +62,20 @@ module.exports = todoDecorator =
     for day in textConsts.days
       durationString = @getDurationString(perDay[day])
       daySummaries.push "#{day}:#{durationString}"
-
     daySummaryString = daySummaries.join(", ")
 
-    completedElement.textContent = hourSummary
-    daysElement.textContent = daySummaryString
+    # build the overlay and decorate.
+    overlayElement = @createWeekOverlayElement(hourSummary, daySummaryString)
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
   decorateSection: (editor, section) ->
     marker = @createMarker(editor, section.textRange)
-    # Create message element
-    overlay = document.createElement('div')
-    overlay.classList.add('same-line-overlay')
-
-    estElement = document.createElement('div')
-    estElement.classList.add('section-estimate')
-    overlay.appendChild(estElement)
 
     totalHours = @getDurationString(section.estimateTotalDuration)
     completedHours = @getDurationString(section.estimateDoneDuration)
+    content = "#{completedHours} / #{totalHours} completed."
 
-    estElement.textContent = "#{completedHours} / #{totalHours} completed."
+    overlay = @createSectionOverlayElement(content)
     editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
   decorateItem: (editor, item, isFirstWeek, todayString) ->
