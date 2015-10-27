@@ -7,6 +7,7 @@ textConsts = require './todo-text-consts'
 module.exports = MarkdownAtomTodo =
   subscriptions: null
   todoMode: false
+  highlightedDay: null
 
   # Activate method gets called the first time the command is called.
   activate: (state) ->
@@ -16,6 +17,16 @@ module.exports = MarkdownAtomTodo =
 
     #register the command.
     @subscriptions.add atom.commands.add 'atom-workspace', 'markdown-atom-todo:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Sunday": => @highlightDay('U')
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Monday": => @highlightDay('M')
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Tuesday": => @highlightDay('T')
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Wednesday": => @highlightDay('W')
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Thursday": => @highlightDay('R')
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Friday": => @highlightDay('F')
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Saturday": => @highlightDay('S')
+
+    # add ability to remove highlight
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:clear highlight": => @highlightDay(null)
 
     # registers a listener, only after this package has been activated though.
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
@@ -40,6 +51,11 @@ module.exports = MarkdownAtomTodo =
     else
       @hideTodo()
 
+  highlightDay: (dayKey) ->
+    console.log "highlight #{dayKey}"
+    @highlightedDay = dayKey
+    @showTodo()
+
   showTodo: ->
     editor = atom.workspace.getActiveTextEditor()
     decorator.destroyMarkers(editor)
@@ -50,7 +66,7 @@ module.exports = MarkdownAtomTodo =
       rowText = editor.lineTextForBufferRow(i)
       parser.parseLine(i, rowText)
 
-    decorator.decorateTodo(editor, parser.todoModel)
+    decorator.decorateTodo(editor, parser.todoModel, @highlightedDay)
 
   hideTodo: ->
     editor = atom.workspace.getActiveTextEditor()

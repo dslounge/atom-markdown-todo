@@ -78,7 +78,8 @@ module.exports = todoDecorator =
     overlay = @createSectionOverlayElement(content)
     editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
-  decorateItem: (editor, item, isFirstWeek, todayString) ->
+  decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
+    console.log("--decorateItem--: #{highlightedDay}")
     #-- Decorate item
     if item.estimate?
       marker = @createMarker(editor, item.estimate.range)
@@ -89,12 +90,17 @@ module.exports = todoDecorator =
       editor.decorateMarker(marker, type: 'highlight', class: "done-badge")
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-done")
-    else if isFirstWeek and (item.day == todayString)
+    else if isFirstWeek and (item.dayString == highlightedDay)
+      lineMarker = @createMarker(editor, item.lineRange)
+      editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
+    else if isFirstWeek and (item.day == todayString) and !highlightedDay?
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
 
 
-  decorateTodo: (editor, tree) ->
+  decorateTodo: (editor, tree, highlightedDay) ->
+    console.log("decorateTodo: #{highlightedDay}")
+    @highlightedDay = highlightedDay
     todayString = moment().format('dd')
     isFirstWeek = false
     for week, weekIndex in tree
@@ -103,4 +109,4 @@ module.exports = todoDecorator =
       for section in week.children
         @decorateSection(editor, section)
         for item in section.children
-          @decorateItem(editor, item, isFirstWeek, todayString)
+          @decorateItem(editor, item, isFirstWeek, todayString, highlightedDay)
