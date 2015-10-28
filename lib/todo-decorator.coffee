@@ -16,32 +16,30 @@ module.exports = todoDecorator =
 
   #TODO There might be a bug here since .hours() returns max 23
   getDurationString: (momentDuration) ->
-    if momentDuration.minutes() != 0
-      hours = momentDuration.hours()
-      minutes = momentDuration.minutes()
-      "#{hours}h#{minutes}m"
-    else
-      hours = momentDuration.asHours()
-      "#{hours}h"
+    hours = Math.round(momentDuration.asHours() * 100) / 100
+    "#{hours}h"
 
-  createWeekOverlayElement: (hourSummary, daySummaryString) ->
+  createWeekOverlayElement: (hourSummary, daySummaryString, percentage) ->
     template = """
     <div class="same-line-overlay">
       <div class="section-estimate">
         #{hourSummary}
+        <progress class='estimate-progress' max='1' value='#{percentage}' />
       </div>
       <div class="hours-summary">
         #{daySummaryString}
       </div>
+
     </div>
     """
     $('<div/>').html(template).contents()[0]
 
-  createSectionOverlayElement: (text) ->
+  createSectionOverlayElement: (text, percentage) ->
     template = """
     <div class="same-line-overlay">
       <div class="section-estimate">
         #{text}
+        <progress class='estimate-progress' max='1' value='#{percentage}' />
       </div>
     """
     $('<div/>').html(template).contents()[0]
@@ -56,6 +54,8 @@ module.exports = todoDecorator =
     totalHours = @getDurationString(week.getTotalDuration())
     hourSummary = "#{completedHours} / #{totalHours}"
 
+    percentage = week.getDoneDuration().asSeconds() / week.getTotalDuration().asSeconds()
+
     # Make per day summary
     daySummaries = []
     perDay = week.getEstimatesPerDay()
@@ -65,7 +65,7 @@ module.exports = todoDecorator =
     daySummaryString = daySummaries.join(", ")
 
     # build the overlay and decorate.
-    overlayElement = @createWeekOverlayElement(hourSummary, daySummaryString)
+    overlayElement = @createWeekOverlayElement(hourSummary, daySummaryString, percentage)
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
   decorateSection: (editor, section) ->
@@ -73,9 +73,13 @@ module.exports = todoDecorator =
 
     totalHours = @getDurationString(section.estimateTotalDuration)
     completedHours = @getDurationString(section.estimateDoneDuration)
-    content = "#{completedHours} / #{totalHours} completed."
+    content = "#{completedHours} / #{totalHours}"
 
-    overlay = @createSectionOverlayElement(content)
+    percentage = section.estimateDoneDuration.asSeconds() / section.estimateTotalDuration.asSeconds()
+    console.log("PERCENTAGE: #{percentage}")
+    console.log(section.estimateTotalDuration)
+    console.log(section.estimateDoneDuration)
+    overlay = @createSectionOverlayElement(content, percentage)
     editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
