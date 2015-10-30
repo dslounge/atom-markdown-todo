@@ -35,15 +35,24 @@ module.exports =
     bufferRowIndex: index
     startDate: @dateFromHeader(text)
     dayDurations: @createDayDurations()
+    dayCompletedDurations: @createDayDurations()
     textRange: @inlineTextRange(index, dateStartIndex, dateStartIndex + dateLength)
     children: []
     getEstimatesPerDay: ->
+      #TODO: It's dumb to have to track @dayDurations. We should be able to make one on the fly.
       for section in @children
         sectionEstimates = section.getEstimatesPerDay()
         for day in textConsts.days
           @dayDurations[day].add(sectionEstimates[day])
-
-      return @dayDurations
+      @dayDurations
+    # TODO: Needs to be completed
+    getDoneDurationsPerDay: ->
+      #TODO: It's dumb to have to track @dayCompletedDurations. We should be able to make one on the fly.
+      for section in @children
+        sectionEstimates = section.getDoneDurationsPerDay()
+        for day in textConsts.days
+          @dayCompletedDurations[day].add(sectionEstimates[day])
+      @dayCompletedDurations
     getTotalDuration: ->
       duration = moment.duration()
       for section in @children
@@ -63,6 +72,7 @@ module.exports =
     textRange: @inlineTextRange(index, 4, 4 + title.length)
     children: []
     dayDurations: @createDayDurations()
+    dayCompletedDurations: @createDayDurations()
     estimateTotalDuration: moment.duration()
     estimateDoneDuration: moment.duration()
     getTotalDuration: ->
@@ -77,10 +87,17 @@ module.exports =
         if item.isDone
           @estimateDoneDuration.add(item.estimate.duration)
     getEstimatesPerDay: ->
+      #TODO: It's dumb to have to track @dayDurations. We should be able to make one on the fly.
       for item, i in @children
         if item.dayString? and item.estimate?
           @dayDurations[item.dayString].add(item.estimate.duration)
       @dayDurations
+    getDoneDurationsPerDay: ->
+      #TODO: It's dumb to have to track @dayCompletedDurations. We should be able to make one on the fly.
+      for item, i in @children
+        if item.dayString? and item.isDone? and item.estimate?
+          @dayCompletedDurations[item.dayString].add(item.estimate.duration)
+      @dayCompletedDurations
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)

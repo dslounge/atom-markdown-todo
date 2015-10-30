@@ -86,7 +86,38 @@ atom-text-editor::shadow{
     background-color: @background-color-success;
   }
 
+}
 
+.daySummary{
+  display:inline-block;
+  margin: 0em .7em;
+  .day{
+    // color: rgba(255,100,50, .4);
+    opacity: .5;
+    font-weight:bold;
+    margin-right:.2em;
+  }
+  .hours{
+    color: rgba(255,255,255, .7);
+  }
+}
+
+.progress-block{
+  display:inline-block;
+  progress[value] {
+    display:block;
+    height:.1em;
+    margin-top:-.23em;
+    width: auto;
+  }
+
+  progress[value]::-webkit-progress-bar {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  progress[value]::-webkit-progress-value {
+    background-color: @background-color-success;
+  }
 }
 
 .hours-summary{

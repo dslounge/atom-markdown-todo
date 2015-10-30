@@ -16,7 +16,7 @@ Some goals:
 
 ### This Project
 
-- T   1h  Add a progress bar to time estimates.
+- T   1h  DONE Add a progress bar to time estimates.
 - W   1h  Clean up project description
 - F   1h  Use a better color scheme
 - U   1h  Submit as an atom extension

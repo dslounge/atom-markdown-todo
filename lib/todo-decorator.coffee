@@ -19,7 +19,32 @@ module.exports = todoDecorator =
     hours = Math.round(momentDuration.asHours() * 100) / 100
     "#{hours}h"
 
-  createWeekOverlayElement: (hourSummary, daySummaryString, percentage) ->
+  # Creates an html string with a percentage bar
+  makeProgressBlock: (text, percentage) ->
+    console.log("--makeProgressBlock--: #{text}, #{percentage}")
+    template = """
+      <div class="progress-block">
+        #{text}
+        <progress class='estimate-progress' max='1' value='#{percentage}' />
+      </div>
+    """
+
+  makeDaysProgress: (perDayBreakdown) ->
+    template = ""
+    for day in perDayBreakdown
+      innerText = """
+      <span class="daySummary">
+        <span class="day">#{day.day}</span><span class="hours">#{day.durationString}</span>
+      <span>
+      """
+      template = template.concat(@makeProgressBlock(innerText, day.percentage))
+    template
+
+
+  createWeekOverlayElement: (hourSummary, perDayBreakdown, percentage) ->
+    console.log("--createWeekOverlayElement--")
+    console.log(perDayBreakdown)
+    testBlock = @makeProgressBlock("hello", .7)
     template = """
     <div class="same-line-overlay">
       <div class="section-estimate">
@@ -27,11 +52,11 @@ module.exports = todoDecorator =
         <progress class='estimate-progress' max='1' value='#{percentage}' />
       </div>
       <div class="hours-summary">
-        #{daySummaryString}
+        #{@makeDaysProgress(perDayBreakdown)}
       </div>
-
     </div>
     """
+
     $('<div/>').html(template).contents()[0]
 
   createSectionOverlayElement: (text, percentage) ->
@@ -57,15 +82,18 @@ module.exports = todoDecorator =
     percentage = week.getDoneDuration().asSeconds() / week.getTotalDuration().asSeconds()
 
     # Make per day summary
-    daySummaries = []
+    perDayBreakdown = []
     perDay = week.getEstimatesPerDay()
+    perDayDone = week.getDoneDurationsPerDay()
     for day in textConsts.days
-      durationString = @getDurationString(perDay[day])
-      daySummaries.push "#{day}:#{durationString}"
-    daySummaryString = daySummaries.join(", ")
+      breakdown =
+        day: day
+        durationString: @getDurationString(perDay[day])
+        percentage: perDayDone[day].asSeconds() / perDay[day].asSeconds()
+      perDayBreakdown.push(breakdown)
 
     # build the overlay and decorate.
-    overlayElement = @createWeekOverlayElement(hourSummary, daySummaryString, percentage)
+    overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
   decorateSection: (editor, section) ->
@@ -76,14 +104,10 @@ module.exports = todoDecorator =
     content = "#{completedHours} / #{totalHours}"
 
     percentage = section.estimateDoneDuration.asSeconds() / section.estimateTotalDuration.asSeconds()
-    console.log("PERCENTAGE: #{percentage}")
-    console.log(section.estimateTotalDuration)
-    console.log(section.estimateDoneDuration)
     overlay = @createSectionOverlayElement(content, percentage)
     editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
-    console.log("--decorateItem--: #{highlightedDay}")
     #-- Decorate item
     if item.estimate?
       marker = @createMarker(editor, item.estimate.range)
@@ -95,6 +119,7 @@ module.exports = todoDecorator =
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-done")
     else if isFirstWeek and (item.dayString == highlightedDay)
+      # TODO: Don't like this if statement. Highlighted days should have their own class.
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
     else if isFirstWeek and (item.day == todayString) and !highlightedDay?

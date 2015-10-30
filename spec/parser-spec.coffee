@@ -95,6 +95,9 @@ describe "TodoParser", ->
       it 'returns a week object with a getEstimatesPerDay function', ->
         expect(typeof week.getEstimatesPerDay).toBe('function')
 
+      it 'returns a week object with a getDoneDurationsPerDay function', ->
+        expect(typeof week.getDoneDurationsPerDay).toBe('function')
+
       describe 'getEstimatesPerDay', ->
 
         it 'returns an object with empty day values when it has no items', ->
@@ -112,6 +115,25 @@ describe "TodoParser", ->
             week.children.push(sectionItem)
 
           testObj = week.getEstimatesPerDay()
+          for day, i in days
+            expect(testObj[day].asHours()).toEqual(i * 3)
+
+      describe 'getDoneDurationsPerDay', ->
+
+        it 'returns an object with empty day values when it has no items', ->
+          testObj = week.getDoneDurationsPerDay()
+          for day in days
+            expect(testObj[day]._milliseconds).not.toBeNull()
+
+        it 'adds up the time estimates correctly', ->
+          for i in [1..3]
+            sectionItem = parser.parseH3Line(rowIndex, "### project #{i} ")
+            for day, i in days
+              testLine = "- #{day} #{i}h  DONE   A quick brown fox"
+              lineItem = parser.parseTodoLine(i, testLine)
+              sectionItem.addTodoItem(lineItem)
+            week.children.push(sectionItem)
+          testObj = week.getDoneDurationsPerDay()
           for day, i in days
             expect(testObj[day].asHours()).toEqual(i * 3)
 
@@ -157,6 +179,9 @@ describe "TodoParser", ->
       it 'returns a section object with a getEstimatesPerDay function', ->
         expect(typeof sectionItem.getEstimatesPerDay).toBe('function')
 
+      it 'returns a section object with a getDoneDurationsPerDay function', ->
+        expect(typeof sectionItem.getDoneDurationsPerDay).toBe('function')
+
       describe 'getEstimatesPerDay', ->
 
         it 'returns an object with empty day values when it has no items', ->
@@ -179,6 +204,30 @@ describe "TodoParser", ->
             lineItem = parser.parseTodoLine(i, testLine)
             sectionItem.addTodoItem(lineItem)
           testObj = sectionItem.getEstimatesPerDay()
+          expect(testObj['F'].asHours()).toEqual((10 * 11) / 2)
+
+      describe 'getDoneDurationsPerDay', ->
+
+        it 'returns an object with empty day values when it has no items', ->
+          testObj = sectionItem.getDoneDurationsPerDay()
+          for day in days
+            expect(testObj[day]._milliseconds).not.toBeNull()
+
+        it 'returns an object with correct day values for each day', ->
+          for day, i in days
+            testLine = "- #{day} #{i}h  DONE  A quick brown fox"
+            lineItem = parser.parseTodoLine(i, testLine)
+            sectionItem.addTodoItem(lineItem)
+          testObj = sectionItem.getDoneDurationsPerDay()
+          for day, i in days
+            expect(testObj[day].hours()).toEqual(i)
+
+        it 'adds up estimate durations for all tasks in a day', ->
+          for i in [1..10]
+            testLine = "- F  #{i}h  DONE  A quick brown fox"
+            lineItem = parser.parseTodoLine(i, testLine)
+            sectionItem.addTodoItem(lineItem)
+          testObj = sectionItem.getDoneDurationsPerDay()
           expect(testObj['F'].asHours()).toEqual((10 * 11) / 2)
 
   describe 'parseTodoLine', ->
