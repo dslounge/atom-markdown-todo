@@ -13,6 +13,7 @@ Extension Features:
 
 ### Some Project
 
+- U   2h  DONE  Sunday task
 - T   2h  DONE  A task for Tuesday
 - W   3h  DONE  A task for Wednesday
 - R   4h  DONE  A task for Thursday

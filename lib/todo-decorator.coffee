@@ -21,7 +21,6 @@ module.exports = todoDecorator =
 
   # Creates an html string with a percentage bar
   makeProgressBlock: (text, percentage) ->
-    console.log("--makeProgressBlock--: #{text}, #{percentage}")
     template = """
       <div class="progress-block">
         #{text}
@@ -42,8 +41,6 @@ module.exports = todoDecorator =
 
 
   createWeekOverlayElement: (hourSummary, perDayBreakdown, percentage) ->
-    console.log("--createWeekOverlayElement--")
-    console.log(perDayBreakdown)
     testBlock = @makeProgressBlock("hello", .7)
     template = """
     <div class="same-line-overlay">
@@ -128,7 +125,6 @@ module.exports = todoDecorator =
 
 
   decorateTodo: (editor, tree, highlightedDay) ->
-    console.log("decorateTodo: #{highlightedDay}")
     @highlightedDay = highlightedDay
     todayString = moment().format('dd')
     isFirstWeek = false
