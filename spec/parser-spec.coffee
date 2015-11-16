@@ -358,3 +358,39 @@ describe "TodoParser", ->
 
   #TODO: Add tests for createDurationItem
   describe 'createDurationItem', ->
+
+  describe 'createPointsItem', ->
+    it 'returns null when there is not a points token', ->
+      testLine = '- T   A task for Tuesday'
+      testObj = parser.createPointsItem(1, testLine)
+      expect(testObj).toBeNull()
+
+    describe 'when there is a points token', ->
+      testLine = '- T 8pt A task for Tuesday'
+
+      it 'returns a points item with the correct amount', ->
+        testObj = parser.createPointsItem(1, testLine)
+        expect(testObj.amount).toEqual(8)
+
+      it 'returns a points item with the correct range', ->
+        testObj = parser.createPointsItem(9, testLine)
+        targetRange = parser.inlineTextRange(9, 4, 7)
+        expect(testObj.range).toEqual(targetRange)
+
+  describe 'createCaloriesItem', ->
+    it 'returns null when there is not a calories token', ->
+      testLine = '- T   Food'
+      testObj = parser.createPointsItem(1, testLine)
+      expect(testObj).toBeNull()
+
+    describe 'when there is a points token', ->
+      testLine = '- T 30cal Food'
+
+      it 'returns a points item with the correct amount', ->
+        testObj = parser.createCaloriesItem(1, testLine)
+        expect(testObj.amount).toEqual(30)
+
+      it 'returns a points item with the correct range', ->
+        testObj = parser.createCaloriesItem(9, testLine)
+        targetRange = parser.inlineTextRange(9, 4, 9)
+        expect(testObj.range).toEqual(targetRange)

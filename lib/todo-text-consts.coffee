@@ -6,6 +6,8 @@ module.exports = todoTextConsts =
     doneBadge: /DONE/
     day: /\s[MTWRSFU]\s/
     duration: /\d+[mhd]/g
+    points: /\d+pt/
+    calories: /\d+cal/
   formats:
     dateformat: 'MMM-Do-YYYY'
     dayKeys:

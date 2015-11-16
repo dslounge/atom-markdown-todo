@@ -19,8 +19,11 @@ Extension Features:
 - R   4h  DONE  A task for Thursday
 - F   5h  DONE  A task for Friday
 - S   6h  DONE  A task for Saturday
-- S   20m  DONE  A task for Saturday
+- S   20m   2pt   A task for Saturday
 - >M  3h  A task for next week
+
+### Food
+- T   30cal   some food item
 
 ### Another Project
 

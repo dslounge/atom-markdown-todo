@@ -111,6 +111,9 @@ module.exports =
     #get the second duration (actual)
     actual = @createDurationItem(rowIndex, textConsts.regex.duration.exec(text))
 
+    points = @createPointsItem(rowIndex, text)
+    calories = @createCaloriesItem(rowIndex, text)
+
     isDone = (doneIndex != -1)
 
     isDone: isDone
@@ -121,8 +124,32 @@ module.exports =
     bufferRowIndex: rowIndex
     estimate: estimate
     actual: actual #TODO might drop support for this
+    points: points
+    calories: calories
 
   ignoreLine: (rowIndex, text) ->
+
+  createPointsItem: (rowIndex, text) ->
+    regResult = textConsts.regex.points.exec(text)
+    if regResult?
+      text = regResult[0]
+      number = parseInt(text.slice(0, -2)) #pt is 2 chars
+      points =
+        amount: number
+        range: @inlineTextRange(rowIndex, regResult.index, regResult.index + text.length)
+    else
+      null
+
+  createCaloriesItem: (rowIndex, text) ->
+    regResult = textConsts.regex.calories.exec(text)
+    if regResult?
+      text = regResult[0]
+      number = parseInt(text.slice(0, -3)) #cal is 3 chars
+      calories =
+        amount: number
+        range: @inlineTextRange(rowIndex, regResult.index, regResult.index + text.length)
+    else
+      null
 
   #model function
   createDurationItem: (rowIndex, regResult) ->
