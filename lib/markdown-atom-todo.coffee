@@ -25,6 +25,8 @@ module.exports = MarkdownAtomTodo =
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Friday": => @highlightDay('F')
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Saturday": => @highlightDay('S')
 
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle day": => @cycleDayHighlight()
+
     # add ability to remove highlight
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:clear highlight": => @highlightDay(null)
 
@@ -55,6 +57,16 @@ module.exports = MarkdownAtomTodo =
     console.log "highlight #{dayKey}"
     @highlightedDay = dayKey
     @showTodo()
+
+  cycleDayHighlight: ->
+    if @todoMode?
+      console.log "highlight next day. current: #{@highlightedDay}"
+      options = [null, 'U', 'M', 'T', 'W', 'R', 'F', 'S']
+
+      index = options.indexOf(@highlightedDay)
+      nextIndex = (index + 1) % options.length
+      console.log "nextIndex: #{nextIndex}: #{options[nextIndex]}"
+      @highlightDay(options[nextIndex])
 
   showTodo: ->
     editor = atom.workspace.getActiveTextEditor()

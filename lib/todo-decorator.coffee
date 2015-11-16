@@ -118,16 +118,16 @@ module.exports = todoDecorator =
       marker = @createMarker(editor, item.calories.range)
       editor.decorateMarker(marker, type: 'highlight', class: "badge-calories")
 
+    if isFirstWeek and (item.dayString == highlightedDay)
+      lineMarker = @createMarker(editor, item.lineRange)
+      editor.decorateMarker(lineMarker, type: 'line', class: "item-highlight")
+
     if item.isDone
       marker = @createMarker(editor, item.doneBadgeRange)
       editor.decorateMarker(marker, type: 'highlight', class: "done-badge")
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-done")
-    else if isFirstWeek and (item.dayString == highlightedDay)
-      # TODO: Don't like this if statement. Highlighted days should have their own class.
-      lineMarker = @createMarker(editor, item.lineRange)
-      editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
-    else if isFirstWeek and (item.day == todayString) and !highlightedDay?
+    else if isFirstWeek and (item.day == todayString)
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
 
