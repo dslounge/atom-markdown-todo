@@ -108,7 +108,15 @@ module.exports = todoDecorator =
     #-- Decorate item
     if item.estimate?
       marker = @createMarker(editor, item.estimate.range)
-      editor.decorateMarker(marker, type: 'highlight', class: "estimate-badge")
+      editor.decorateMarker(marker, type: 'highlight', class: "badge-estimate")
+
+    if item.points?
+      marker = @createMarker(editor, item.points.range)
+      editor.decorateMarker(marker, type: 'highlight', class: "badge-points")
+
+    if item.calories?
+      marker = @createMarker(editor, item.calories.range)
+      editor.decorateMarker(marker, type: 'highlight', class: "badge-calories")
 
     if item.isDone
       marker = @createMarker(editor, item.doneBadgeRange)
