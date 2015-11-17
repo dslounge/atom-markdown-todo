@@ -4,6 +4,14 @@
 // for a full listing of what's available.
 @import "ui-variables";
 
+@text-yellow: #e2c08d;
+@bg-purple: #512DA8;
+@badge-blue: #303F9F;
+@badge-green: #388E3C;
+@badge-amber: #FFC107;
+@badge-red: #D32F2F;
+@badge-blue-gray: #607D8B;
+
 .badge{
 
   padding: 0 .3em;
@@ -28,14 +36,16 @@ atom-text-editor::shadow{
   .done-badge{
     .region{
       .badge;
-      background-color: rgba(32, 182, 132, 0.2);
+      // background-color: rgba(32, 182, 132, 0.2);
+      background-color: fade(@badge-green, 30%);
     }
   }
 
   .badge-estimate{
     .region{
       .badge;
-      background-color: rgba(0, 136, 255, 0.4);
+      // background-color: rgba(0, 136, 255, 0.4);
+      background-color: fade(@badge-blue, 80%);
     }
   }
 
@@ -43,14 +53,16 @@ atom-text-editor::shadow{
     .region{
       .badge;
       // background-color: #841728;
-      background-color: rgba(132, 23, 40, 0.7);
+      // background-color: rgba(132, 23, 40, 0.7);
+      background-color: fade(@badge-red, 50%);
     }
   }
 
   .badge-calories{
     .region{
       .badge;
-      background-color: rgba(206, 173, 10, .4);
+      // background-color: rgba(206, 173, 10, .4);
+      background-color: fade(@badge-amber, 20%);
     }
   }
 
@@ -61,11 +73,11 @@ atom-text-editor::shadow{
   }
 
   .item-today{
-    color: @text-color-warning;
+    color: @text-yellow;
   }
 
   .item-highlight{
-    background-color: #52489C;
+    background-color: fade(@bg-purple, 30%);
   }
 }
 
@@ -87,7 +99,7 @@ atom-text-editor::shadow{
 /* overlays are outside the shadow root */
 .section-estimate{
   .overlay-badge;
-  background-color: rgba(0, 136, 255, 0.3);
+  background-color: fade(@badge-blue-gray, 30%);
   position:relative;
 
   progress[value] {
