@@ -12,6 +12,12 @@
 @badge-red: #D32F2F;
 @badge-blue-gray: #607D8B;
 
+@badge-points-a: #FFC107;
+@badge-points-b: #F49C11;
+@badge-points-c: #E9781B;
+@badge-points-d: @badge-red;
+@badge-points-e: #A426DD;
+
 .badge{
 
   padding: 0 .3em;
@@ -55,6 +61,51 @@ atom-text-editor::shadow{
       // background-color: #841728;
       // background-color: rgba(132, 23, 40, 0.7);
       background-color: fade(@badge-red, 50%);
+    }
+  }
+
+  .badge-points-a{
+    .region{
+      .badge;
+      // background-color: #841728;
+      // background-color: rgba(132, 23, 40, 0.7);
+      background-color: fade(@badge-points-a, 10%);
+    }
+  }
+
+  .badge-points-b{
+    .region{
+      .badge;
+      // background-color: #841728;
+      // background-color: rgba(132, 23, 40, 0.7);
+      background-color: fade(@badge-points-b, 50%);
+    }
+  }
+
+  .badge-points-c{
+    .region{
+      .badge;
+      // background-color: #841728;
+      // background-color: rgba(132, 23, 40, 0.7);
+      background-color: fade(@badge-points-c, 50%);
+    }
+  }
+
+  .badge-points-d{
+    .region{
+      .badge;
+      // background-color: #841728;
+      // background-color: rgba(132, 23, 40, 0.7);
+      background-color: fade(@badge-points-d, 50%);
+    }
+  }
+
+  .badge-points-e{
+    .region{
+      .badge;
+      // background-color: #841728;
+      // background-color: rgba(132, 23, 40, 0.7);
+      background-color: fade(@badge-points-e, 50%);
     }
   }
 

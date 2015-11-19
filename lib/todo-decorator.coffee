@@ -14,7 +14,6 @@ module.exports = todoDecorator =
     for marker in markerList
       marker.destroy()
 
-  #TODO There might be a bug here since .hours() returns max 23
   getDurationString: (momentDuration) ->
     hours = Math.round(momentDuration.asHours() * 100) / 100
     "#{hours}h"
@@ -112,7 +111,17 @@ module.exports = todoDecorator =
 
     if item.points?
       marker = @createMarker(editor, item.points.range)
-      editor.decorateMarker(marker, type: 'highlight', class: "badge-points")
+
+      hclass = "badge-points-a"
+      if item.points.amount >= 8
+        hclass = "badge-points-e"
+      else if item.points.amount >= 5
+        hclass = "badge-points-d"
+      else if item.points.amount >= 3
+        hclass = "badge-points-c"
+      else if item.points.amount >= 2
+        hclass = "badge-points-b"
+      editor.decorateMarker(marker, type: 'highlight', class: hclass)
 
     if item.calories?
       marker = @createMarker(editor, item.calories.range)

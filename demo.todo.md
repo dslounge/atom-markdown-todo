@@ -27,10 +27,10 @@ Extension Features:
 
 ### Another Project
 
-- U   2h A task for Sunday
-- M   A task for Monday
-- T   A task for Tuesday
-- W   A task for Wednesday
-- R   A task for Thursday
-- F   A task for Friday
-- S   A task for Saturday
+- U   2h  8pt   A task for Sunday
+- M       5pt   A task for Monday
+- T       3pt   A task for Tuesday
+- W       2pt   A task for Wednesday
+- R       1pt   A task for Thursday
+- F             A task for Friday
+- S             A task for Saturday
