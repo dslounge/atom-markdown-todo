@@ -104,6 +104,11 @@ module.exports = todoDecorator =
     editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
+
+    # TODO: This can be cleaner.
+    isLate = (todayString != null) && !item.isDone &&
+      (textConsts.dayKeysOrder.indexOf(todayString) > textConsts.dayKeysOrder.indexOf(item.day))
+
     #-- Decorate item
     if item.estimate?
       marker = @createMarker(editor, item.estimate.range)
@@ -136,6 +141,9 @@ module.exports = todoDecorator =
       editor.decorateMarker(marker, type: 'highlight', class: "done-badge")
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-done")
+    else if isFirstWeek and isLate
+      lineMarker = @createMarker(editor, item.lineRange)
+      editor.decorateMarker(lineMarker, type: 'line', class: "item-late")
     else if isFirstWeek and (item.day == todayString)
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")

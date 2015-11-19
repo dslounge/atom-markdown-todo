@@ -5,6 +5,7 @@
 @import "ui-variables";
 
 @text-yellow: #e2c08d;
+@text-red: #D32F2F;
 @bg-purple: #512DA8;
 @badge-blue: #303F9F;
 @badge-green: #388E3C;
@@ -125,6 +126,10 @@ atom-text-editor::shadow{
 
   .item-today{
     color: @text-yellow;
+  }
+
+  .item-late{
+    color: @text-color-error;
   }
 
   .item-highlight{

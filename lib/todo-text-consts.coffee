@@ -19,3 +19,4 @@ module.exports = todoTextConsts =
       S: 'Sa'
       U: 'Su'
   days: ['U', 'M', 'T', 'W', 'R', 'F', 'S']
+  dayKeysOrder: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
