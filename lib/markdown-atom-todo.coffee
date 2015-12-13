@@ -8,6 +8,7 @@ module.exports = MarkdownAtomTodo =
   subscriptions: null
   todoMode: false
   highlightedDay: null
+  selectedUnit: null
 
   # Activate method gets called the first time the command is called.
   activate: (state) ->
@@ -26,6 +27,7 @@ module.exports = MarkdownAtomTodo =
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Saturday": => @highlightDay('S')
 
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle day": => @cycleDayHighlight()
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle units": => @cycleUnitsDisplay()
 
     # add ability to remove highlight
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:clear highlight": => @highlightDay(null)
@@ -58,6 +60,11 @@ module.exports = MarkdownAtomTodo =
     @highlightedDay = dayKey
     @showTodo()
 
+  displayUnit: (selectedUnit) ->
+    console.log "display #{selectedUnit}"
+    @selectedUnit = selectedUnit
+    @showTodo()
+
   cycleDayHighlight: ->
     if @todoMode?
       console.log "highlight next day. current: #{@highlightedDay}"
@@ -67,6 +74,15 @@ module.exports = MarkdownAtomTodo =
       nextIndex = (index + 1) % options.length
       console.log "nextIndex: #{nextIndex}: #{options[nextIndex]}"
       @highlightDay(options[nextIndex])
+
+  cycleUnitDisplay: ->
+    if @todoMode?
+      console.log "highlight unit display. current: #{@selectedUnit}"
+      options = [null, 'time', 'calories', 'points']
+      index = options.indexOf(@selectedUnit)
+      nextIndex = (index + 1) % options.length
+      console.log "nextIndex: #{nextIndex}: #{options[nextIndex]}"
+      @displayUnit(options[nextIndex])
 
   showTodo: ->
     editor = atom.workspace.getActiveTextEditor()
