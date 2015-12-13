@@ -131,10 +131,10 @@ module.exports =
     points: points
     calories: calories
     getAmount: (unit) ->
+      #TODO: This should be generalized
       switch unit
-        when 'time' then estimate.duration
-        when 'cal' then @calories.amount
-        when 'pts' then @points.amount
+        when 'cal' then @calories?.amount || 0
+        when 'pt' then @points?.amount || 0
         else 0
     getCompletedAmount: (unit) ->
       if @isDone

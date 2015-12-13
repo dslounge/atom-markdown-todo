@@ -338,6 +338,44 @@ describe "TodoParser", ->
           output = parser.parseTodoLine(1, testLine)
           expect(output.estimate).toBeNull()
 
+    describe 'amount functions', ->
+      describe 'getAmount', ->
+        describe 'pts', ->
+          it 'returns pts amount if item has pts', ->
+            todoItem = parser.parseTodoLine(0, '- T  3pt  A task for Tuesday')
+            testAmount = todoItem.getAmount('pt')
+            expect(testAmount).toEqual(3)
+
+          it 'returns 0 if item does not have pts', ->
+            todoItem = parser.parseTodoLine(0, '- T  A task for Tuesday')
+            testAmount = todoItem.getAmount('pt')
+            expect(testAmount).toEqual(0)
+
+        describe 'cal', ->
+          it 'returns cal amount if item has cal', ->
+            todoItem = parser.parseTodoLine(0, '- T  3cal  A task for Tuesday')
+            testAmount = todoItem.getAmount('cal')
+            expect(testAmount).toEqual(3)
+
+          it 'returns 0 if item does not have cal', ->
+            todoItem = parser.parseTodoLine(0, '- T  A task for Tuesday')
+            testAmount = todoItem.getAmount('cal')
+            expect(testAmount).toEqual(0)
+
+      describe 'getCompletedAmount', ->
+        it 'calls @getAmount if item is done', ->
+          todoItem = parser.parseTodoLine(0, '- T  DONE A task for Tuesday')
+          spyOn(todoItem, 'getAmount')
+          testAmount = todoItem.getCompletedAmount('pants')
+          expect(todoItem.getAmount).toHaveBeenCalledWith('pants')
+
+        it 'does not call @getAmount and returns 0 if item is not done', ->
+          todoItem = parser.parseTodoLine(0, '- T   A task for Tuesday')
+          spyOn(todoItem, 'getAmount')
+          testAmount = todoItem.getCompletedAmount('pants')
+          expect(todoItem.getAmount).not.toHaveBeenCalled()
+          expect(testAmount).toEqual(0)
+
   describe 'dateFromHeader', ->
     testOutput = null
 
