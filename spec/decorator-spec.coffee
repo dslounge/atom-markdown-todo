@@ -1,7 +1,7 @@
 decorator = require '../lib/todo-decorator'
 
 describe 'TodoDecorator', ->
-  mockEditor = mockSection = null
+  mockEditor = mockSection = mockWeek = null
 
   beforeEach ->
     mockEditor =
@@ -10,6 +10,8 @@ describe 'TodoDecorator', ->
       textRange: [[0, 1], [0,10]]
       getTotalAmount: ->
       getCompletedAmount: ->
+    mockWeek =
+      textRange: [[0, 1], [0,10]]
 
     spyOn(mockEditor, 'decorateMarker')
 
@@ -19,21 +21,49 @@ describe 'TodoDecorator', ->
   #TODO
   describe 'createMarker', ->
 
-  describe 'section overlays', ->
+  describe 'week decoration', ->
+
+    beforeEach ->
+      spyOn(decorator, 'createMarker')
+      spyOn(decorator, 'createWeekOverlayElement')
+
+    describe 'decorateWeek', ->
+      beforeEach ->
+        spyOn(decorator, 'createWeekHoursOverlay').andReturn({})
+        spyOn(decorator, 'createWeekUnitOverlay')
+
+      it 'does not decorate week when selected unit is null', ->
+        decorator.decorateWeek(mockEditor, mockWeek, null)
+        expect(decorator.createMarker).not.toHaveBeenCalled()
+        expect(mockEditor.decorateMarker).not.toHaveBeenCalled()
+
+      it 'does not decorate week if no overlay element is created', ->
+        # createWeekUnitOverlay spy returns nothing which is what we're testing
+        decorator.decorateWeek(mockEditor, mockWeek, 'pants')
+        expect(decorator.createMarker).not.toHaveBeenCalled()
+        expect(mockEditor.decorateMarker).not.toHaveBeenCalled()
+
+      it 'decorates week if overlay element is created', ->
+        # createWeekHoursOverlay spy returns something which is what we're testing
+        decorator.decorateWeek(mockEditor, mockWeek, 'time')
+        expect(decorator.createMarker).toHaveBeenCalled()
+        expect(mockEditor.decorateMarker).toHaveBeenCalled()
+
+      it 'calls createWeekHoursOverlay if selected unit is time', ->
+        decorator.decorateWeek(mockEditor, mockSection, 'time')
+        expect(decorator.createWeekHoursOverlay).toHaveBeenCalled()
+        expect(decorator.createWeekUnitOverlay).not.toHaveBeenCalled()
+
+      it 'calls createWeekUnitOverlay if selected unit is anything else', ->
+        decorator.decorateWeek(mockEditor, mockSection, 'pt')
+        expect(decorator.createWeekUnitOverlay).toHaveBeenCalled()
+        expect(decorator.createWeekHoursOverlay).not.toHaveBeenCalled()
+
+  describe 'section decoration', ->
 
     beforeEach ->
       spyOn(decorator, 'createMarker')
       spyOn(decorator, 'createSectionOverlayElement')
-
-    describe 'decorateWeek', ->
-      beforeEach ->
-
-      it 'does not decorate week when selected unit is null', ->
-      it 'does not decorate week if no overlay element is created', ->
-      it 'decorates week if overlay element is created', ->
-      it 'calls createWeekHoursOverlay if selected unit is time', ->
-      it 'calls createWeekUnitOverlay if selected unit is anything else', ->
-
 
     describe 'decorateSection', ->
       beforeEach ->
@@ -51,7 +81,7 @@ describe 'TodoDecorator', ->
         expect(decorator.createMarker).not.toHaveBeenCalled()
         expect(mockEditor.decorateMarker).not.toHaveBeenCalled()
 
-      it 'decorates if overlay element is created', ->
+      it 'decorates section if overlay element is created', ->
         # spy createSectionHoursOverlay returns something, which is what we want to test here
         decorator.decorateSection(mockEditor, mockSection, 'time')
         expect(decorator.createMarker).toHaveBeenCalled()
@@ -60,6 +90,7 @@ describe 'TodoDecorator', ->
       it 'calls createSectionHoursOverlay when selected unit is time', ->
         decorator.decorateSection(mockEditor, mockSection, 'time')
         expect(decorator.createSectionHoursOverlay).toHaveBeenCalled()
+        expect(decorator.createSectionUnitsOverlay).not.toHaveBeenCalled()
 
       it 'calls createSectionUnitsOverlay when selected unit is something else', ->
         decorator.decorateSection(mockEditor, mockSection, 'pt')

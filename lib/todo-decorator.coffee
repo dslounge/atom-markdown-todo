@@ -66,16 +66,24 @@ module.exports = todoDecorator =
     $('<div/>').html(template).contents()[0]
 
   decorateWeek: (editor, week, selectedUnit) ->
-    marker = @createMarker(editor, week.textRange)
+    console.log("--decorateWeek--: " + selectedUnit)
+    if selectedUnit == 'time'
+      overlayElement = @createWeekHoursOverlay(week)
+    else
+      overlayElement = @createWeekUnitOverlay(week, selectedUnit)
 
-    # Make hours summary
+    if overlayElement?
+      marker = @createMarker(editor, week.textRange)
+      editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
+
+  createWeekHoursOverlay: (week) ->
+    # aggregate summary
     completedHours = @getDurationString(week.getDoneDuration())
     totalHours = @getDurationString(week.getTotalDuration())
     hourSummary = "#{completedHours} / #{totalHours}"
-
     percentage = week.getDoneDuration().asSeconds() / week.getTotalDuration().asSeconds()
 
-    # Make per day summary
+    # Daily summary
     perDayBreakdown = []
     perDay = week.getEstimatesPerDay()
     perDayDone = week.getDoneDurationsPerDay()
@@ -88,14 +96,10 @@ module.exports = todoDecorator =
 
     # build the overlay and decorate.
     overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
-    editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
-  createWeekHoursOverlay: (week) ->
-  createWeekUnitOveray: (week, unit) ->
+  createWeekUnitOverlay: (week, unit) ->
 
   decorateSection: (editor, section, selectedUnit) ->
-    console.log("--decorateSection: " + selectedUnit)
-
     if selectedUnit == 'time'
       overlay = @createSectionHoursOverlay(section)
     else
