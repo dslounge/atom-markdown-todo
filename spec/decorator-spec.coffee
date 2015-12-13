@@ -8,8 +8,8 @@ describe 'TodoDecorator', ->
       decorateMarker: ->
     mockSection =
       textRange: [[0, 1], [0,10]]
-      getTotalCalories: ->
-      getCompletedCalories: ->
+      getTotalAmount: ->
+      getCompletedAmount: ->
 
     spyOn(mockEditor, 'decorateMarker')
 
@@ -28,8 +28,7 @@ describe 'TodoDecorator', ->
     describe 'decorateSection', ->
       beforeEach ->
         spyOn(decorator, 'createSectionHoursOverlay')
-        spyOn(decorator, 'createSectionPointsOverlay')
-        spyOn(decorator, 'createSectionCaloriesOverlay')
+        spyOn(decorator, 'createSectionUnitsOverlay')
 
       it 'does not create or decorate a marker when selected unit is null', ->
         decorator.decorateSection(mockEditor, mockSection, null)
@@ -40,35 +39,35 @@ describe 'TodoDecorator', ->
         decorator.decorateSection(mockEditor, mockSection, 'time')
         expect(decorator.createSectionHoursOverlay).toHaveBeenCalled()
 
-      it 'calls createSectionPointsOverlay when selected unit is pts', ->
+      it 'calls createSectionUnitsOverlay when selected unit is pts', ->
         decorator.decorateSection(mockEditor, mockSection, 'pts')
-        expect(decorator.createSectionPointsOverlay).toHaveBeenCalled()
+        expect(decorator.createSectionUnitsOverlay).toHaveBeenCalled()
 
-      it 'calls createSectionCaloriesOverlay when selected unit is cal', ->
+      it 'calls createSectionUnitsOverlay when selected unit is cal', ->
         decorator.decorateSection(mockEditor, mockSection, 'cal')
-        expect(decorator.createSectionCaloriesOverlay).toHaveBeenCalled()
+        expect(decorator.createSectionUnitsOverlay).toHaveBeenCalled()
 
     describe 'createSectionHoursOverlay', ->
     describe 'createSectionPointsOverlay', ->
 
-    describe 'createSectionCaloriesOverlay', ->
-      it 'calls section.getTotalCalories and section.getCompletedCalories', ->
-        spyOn(mockSection, 'getTotalCalories')
-        spyOn(mockSection, 'getCompletedCalories')
-        decorator.createSectionCaloriesOverlay(mockSection)
-        expect(mockSection.getTotalCalories).toHaveBeenCalled()
-        expect(mockSection.getCompletedCalories).toHaveBeenCalled()
+    describe 'createSectionUnitsOverlay', ->
+      it 'calls section.getTotalAmount and section.getCompletedAmount', ->
+        spyOn(mockSection, 'getTotalAmount')
+        spyOn(mockSection, 'getCompletedAmount')
+        decorator.createSectionUnitsOverlay(mockSection, 'cal')
+        expect(mockSection.getTotalAmount).toHaveBeenCalledWith('cal')
+        expect(mockSection.getCompletedAmount).toHaveBeenCalledWith('cal')
 
-      it 'creates an overlayElement if the section has calories', ->
-        spyOn(mockSection, 'getTotalCalories').andReturn(2)
-        spyOn(mockSection, 'getCompletedCalories').andReturn(1)
-        decorator.createSectionCaloriesOverlay(mockSection)
+      it 'creates an overlayElement if the section has amount of requested unit', ->
+        spyOn(mockSection, 'getTotalAmount').andReturn(2)
+        spyOn(mockSection, 'getCompletedAmount').andReturn(1)
+        decorator.createSectionUnitsOverlay(mockSection, 'cal')
         expect(decorator.createSectionOverlayElement).toHaveBeenCalled()
 
-      it 'does not create an overlayElement if the section has no calories', ->
-        spyOn(mockSection, 'getTotalCalories').andReturn(0)
-        spyOn(mockSection, 'getCompletedCalories').andReturn(0)
-        decorator.createSectionCaloriesOverlay(mockSection)
+      it 'does not create an overlayElement if the section has no amount of requested unit', ->
+        spyOn(mockSection, 'getTotalAmount').andReturn(0)
+        spyOn(mockSection, 'getCompletedAmount').andReturn(0)
+        decorator.createSectionUnitsOverlay(mockSection)
         expect(decorator.createSectionOverlayElement).not.toHaveBeenCalled()
 
 

@@ -93,15 +93,12 @@ module.exports = todoDecorator =
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
   decorateSection: (editor, section, selectedUnit) ->
-
     if selectedUnit == null
       return
     else if selectedUnit == 'time'
       overlay = @createSectionHoursOverlay(section)
-    else if selectedUnit == 'pts'
-      overlay = @createSectionPointsOverlay(section)
-    else if selectedUnit == 'cal'
-      overlay = @createSectionCaloriesOverlay(section)
+    else if selectedUnit in ['pts', 'cal']
+      overlay = @createSectionUnitsOverlay(section, selectedUnit)
 
     if overlay != null
       marker = @createMarker(editor, section.textRange)
@@ -114,15 +111,12 @@ module.exports = todoDecorator =
     percentage = section.estimateDoneDuration.asSeconds() / section.estimateTotalDuration.asSeconds()
     overlay = @createSectionOverlayElement(content, percentage)
 
-  createSectionPointsOverlay: (section) ->
-
-
-  createSectionCaloriesOverlay: (section) ->
-    totalCalories = section.getTotalCalories()
-    completedCalories = section.getCompletedCalories()
-    if(totalCalories != 0 && completedCalories != 0)
-      content = "#{completedCalories}cal / #{totalCalories}cal"
-      percentage = completedCalories / totalCalories
+  createSectionUnitsOverlay: (section, unit) ->
+    total = section.getTotalAmount(unit)
+    completed = section.getCompletedAmount(unit)
+    if(total != 0 && completed != 0)
+      content = "#{completed}#{unit} / #{total}#{unit}"
+      percentage = total / completed
       overlay = @createSectionOverlayElement(content, percentage)
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
