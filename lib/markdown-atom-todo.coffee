@@ -48,7 +48,6 @@ module.exports = MarkdownAtomTodo =
 
   #TODO: Eventually this should be tracked for each editor.
   toggle: ->
-    console.log "toggle #{@todoMode}"
     @todoMode = !@todoMode
     if @todoMode
       @showTodo()
@@ -56,32 +55,25 @@ module.exports = MarkdownAtomTodo =
       @hideTodo()
 
   highlightDay: (dayKey) ->
-    console.log "highlight #{dayKey}"
     @highlightedDay = dayKey
     @showTodo()
 
   displayUnit: (selectedUnit) ->
-    console.log "display #{selectedUnit}"
     @selectedUnit = selectedUnit
     @showTodo()
 
   cycleDayHighlight: ->
     if @todoMode?
-      console.log "highlight next day. current: #{@highlightedDay}"
       options = [null, 'U', 'M', 'T', 'W', 'R', 'F', 'S']
-
       index = options.indexOf(@highlightedDay)
       nextIndex = (index + 1) % options.length
-      console.log "nextIndex: #{nextIndex}: #{options[nextIndex]}"
       @highlightDay(options[nextIndex])
 
   cycleUnitDisplay: ->
     if @todoMode?
-      console.log "highlight unit display. current: #{@selectedUnit}"
       options = [null, 'time', 'calories', 'points']
       index = options.indexOf(@selectedUnit)
       nextIndex = (index + 1) % options.length
-      console.log "nextIndex: #{nextIndex}: #{options[nextIndex]}"
       @displayUnit(options[nextIndex])
 
   showTodo: ->
