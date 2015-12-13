@@ -8,7 +8,7 @@ module.exports = MarkdownAtomTodo =
   subscriptions: null
   todoMode: false
   highlightedDay: null
-  selectedUnit: null
+  selectedUnit: 'time'
 
   # Activate method gets called the first time the command is called.
   activate: (state) ->
@@ -27,7 +27,7 @@ module.exports = MarkdownAtomTodo =
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Saturday": => @highlightDay('S')
 
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle day": => @cycleDayHighlight()
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle units": => @cycleUnitsDisplay()
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle units": => @cycleUnitDisplay()
 
     # add ability to remove highlight
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:clear highlight": => @highlightDay(null)
