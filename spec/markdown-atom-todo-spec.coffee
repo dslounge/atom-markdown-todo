@@ -46,8 +46,8 @@ describe "MarkdownAtomTodo", ->
       expect(MarkdownAtomTodo.displayUnit).toHaveBeenCalled()
 
     it 'cycles through the units', ->
-      units = [null, 'time', 'cal', 'pts']
-      expectations = ['time', 'cal', 'pts', null]
+      units = [null, 'time', 'pt', 'cal']
+      expectations = ['time', 'pt', 'cal', null]
       for unit, index in units
         MarkdownAtomTodo.selectedUnit = unit
         expected = expectations[index]

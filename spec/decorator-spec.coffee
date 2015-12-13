@@ -27,7 +27,7 @@ describe 'TodoDecorator', ->
 
     describe 'decorateSection', ->
       beforeEach ->
-        spyOn(decorator, 'createSectionHoursOverlay')
+        spyOn(decorator, 'createSectionHoursOverlay').andReturn({})
         spyOn(decorator, 'createSectionUnitsOverlay')
 
       it 'does not create or decorate a marker when selected unit is null', ->
@@ -35,17 +35,26 @@ describe 'TodoDecorator', ->
         expect(decorator.createMarker).not.toHaveBeenCalled()
         expect(mockEditor.decorateMarker).not.toHaveBeenCalled()
 
+      it 'does not create or decorate a marker if no overlay element is created', ->
+        # spy createSectionUnitsOverlay returns nothing, which is what we want to test here
+        decorator.decorateSection(mockEditor, mockSection, 'pt')
+        expect(decorator.createMarker).not.toHaveBeenCalled()
+        expect(mockEditor.decorateMarker).not.toHaveBeenCalled()
+
+      it 'creates and decorates a marker if overlay element is created', ->
+        # spy createSectionHoursOverlay returns something, which is what we want to test here
+        decorator.decorateSection(mockEditor, mockSection, 'time')
+        expect(decorator.createMarker).toHaveBeenCalled()
+        expect(mockEditor.decorateMarker).toHaveBeenCalled()
+
       it 'calls createSectionHoursOverlay when selected unit is time', ->
         decorator.decorateSection(mockEditor, mockSection, 'time')
         expect(decorator.createSectionHoursOverlay).toHaveBeenCalled()
 
-      it 'calls createSectionUnitsOverlay when selected unit is pts', ->
-        decorator.decorateSection(mockEditor, mockSection, 'pts')
+      it 'calls createSectionUnitsOverlay when selected unit is something else', ->
+        decorator.decorateSection(mockEditor, mockSection, 'pt')
         expect(decorator.createSectionUnitsOverlay).toHaveBeenCalled()
-
-      it 'calls createSectionUnitsOverlay when selected unit is cal', ->
-        decorator.decorateSection(mockEditor, mockSection, 'cal')
-        expect(decorator.createSectionUnitsOverlay).toHaveBeenCalled()
+        expect(decorator.createSectionHoursOverlay).not.toHaveBeenCalled()
 
     describe 'createSectionHoursOverlay', ->
     describe 'createSectionPointsOverlay', ->

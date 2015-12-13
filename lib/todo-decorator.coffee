@@ -93,14 +93,14 @@ module.exports = todoDecorator =
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
   decorateSection: (editor, section, selectedUnit) ->
-    if selectedUnit == null
-      return
-    else if selectedUnit == 'time'
+    console.log("--decorateSection: " + selectedUnit)
+
+    if selectedUnit == 'time'
       overlay = @createSectionHoursOverlay(section)
-    else if selectedUnit in ['pt', 'cal']
+    else
       overlay = @createSectionUnitsOverlay(section, selectedUnit)
 
-    if overlay != null
+    if overlay?
       marker = @createMarker(editor, section.textRange)
       editor.decorateMarker(marker, type: 'overlay', item: overlay)
 
@@ -114,7 +114,7 @@ module.exports = todoDecorator =
   createSectionUnitsOverlay: (section, unit) ->
     total = section.getTotalAmount(unit)
     completed = section.getCompletedAmount(unit)
-    if(total != 0 && completed != 0)
+    if !(total == 0 && completed == 0)
       content = "#{completed}#{unit} / #{total}#{unit}"
       percentage = total / completed
       overlay = @createSectionOverlayElement(content, percentage)
