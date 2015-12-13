@@ -141,6 +141,42 @@ describe "TodoParser", ->
 
       describe 'getDoneDuration', ->
 
+      describe 'amount functions', ->
+
+        week = section1 = section2 = null
+
+        beforeEach ->
+          week = parser.parseH2Line(rowIndex, h2_valid)
+          section1 = parser.parseH3Line(rowIndex, "### project 1 ")
+          section2 = parser.parseH3Line(rowIndex, "### project 2 ")
+          week.children.push(section1)
+          week.children.push(section2)
+          spyOn(section1, 'getTotalAmount').andReturn(10)
+          spyOn(section1, 'getCompletedAmount').andReturn(3)
+
+          spyOn(section2, 'getTotalAmount').andReturn(20)
+          spyOn(section2, 'getCompletedAmount').andReturn(10)
+
+        describe 'getTotalAmount', ->
+          it 'calls getTotalAmount for each section', ->
+            week.getTotalAmount('pants')
+            expect(section1.getTotalAmount).toHaveBeenCalledWith('pants')
+            expect(section2.getTotalAmount).toHaveBeenCalledWith('pants')
+
+          it 'adds up the total amounts for its sections', ->
+            testAmount = week.getTotalAmount('pants')
+            expect(testAmount).toEqual(30)
+
+        describe 'getCompletedAmount', ->
+          it 'calls getCompletedAmount for each section', ->
+            week.getCompletedAmount('pants')
+            expect(section1.getCompletedAmount).toHaveBeenCalledWith('pants')
+            expect(section2.getCompletedAmount).toHaveBeenCalledWith('pants')
+
+          it 'adds up the completed amounts for its sections', ->
+            testCompleted = week.getCompletedAmount('pants')
+            expect(testCompleted).toEqual(13)
+
   describe 'parseH3Line', ->
 
     describe 'with valid input', ->

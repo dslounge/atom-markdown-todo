@@ -65,6 +65,11 @@ module.exports =
         duration.add(section.getDoneDuration())
       duration
 
+    getTotalAmount: (unit) ->
+      (section.getTotalAmount(unit) for section in @children).reduce( (p, c) -> p + c)
+    getCompletedAmount: (unit) ->
+      (section.getCompletedAmount(unit) for section in @children).reduce( (p, c) -> p + c)
+
   parseH3Line: (index, text) ->
     title = text.substring(4)
     bufferRowIndex: index
