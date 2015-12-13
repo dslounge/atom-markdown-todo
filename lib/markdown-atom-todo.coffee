@@ -94,7 +94,7 @@ module.exports = MarkdownAtomTodo =
       rowText = editor.lineTextForBufferRow(i)
       parser.parseLine(i, rowText)
 
-    decorator.decorateTodo(editor, parser.todoModel, @highlightedDay)
+    decorator.decorateTodo(editor, parser.todoModel, @highlightedDay, @selectedUnit)
 
   hideTodo: ->
     editor = atom.workspace.getActiveTextEditor()

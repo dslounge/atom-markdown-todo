@@ -149,8 +149,9 @@ module.exports = todoDecorator =
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
 
 
-  decorateTodo: (editor, tree, highlightedDay) ->
+  decorateTodo: (editor, tree, highlightedDay, selectedUnit) ->
     @highlightedDay = highlightedDay
+    @selectedUnit = selectedUnit
     todayString = moment().format('dd')
     isFirstWeek = false
     for week, weekIndex in tree
