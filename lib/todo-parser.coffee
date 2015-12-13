@@ -98,6 +98,18 @@ module.exports =
         if item.dayString? and item.isDone and item.estimate?
           @dayCompletedDurations[item.dayString].add(item.estimate.duration)
       @dayCompletedDurations
+    getTotalCalories: ->
+      sum = 0
+      for item in @children
+        if item.calories?
+          sum += item.calories.amount
+      sum
+    getCompletedCalories: ->
+      sum = 0
+      for item in @children
+        if item.calories? && item.isDone
+          sum += item.calories.amount
+      sum
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)

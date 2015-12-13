@@ -92,16 +92,38 @@ module.exports = todoDecorator =
     overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
-  decorateSection: (editor, section) ->
-    marker = @createMarker(editor, section.textRange)
+  decorateSection: (editor, section, selectedUnit) ->
 
+    if selectedUnit == null
+      return
+    else if selectedUnit == 'time'
+      overlay = @createSectionHoursOverlay(section)
+    else if selectedUnit == 'pts'
+      overlay = @createSectionPointsOverlay(section)
+    else if selectedUnit == 'cal'
+      overlay = @createSectionCaloriesOverlay(section)
+
+    if overlay != null
+      marker = @createMarker(editor, section.textRange)
+      editor.decorateMarker(marker, type: 'overlay', item: overlay)
+
+  createSectionHoursOverlay: (section) ->
     totalHours = @getDurationString(section.estimateTotalDuration)
     completedHours = @getDurationString(section.estimateDoneDuration)
     content = "#{completedHours} / #{totalHours}"
-
     percentage = section.estimateDoneDuration.asSeconds() / section.estimateTotalDuration.asSeconds()
     overlay = @createSectionOverlayElement(content, percentage)
-    editor.decorateMarker(marker, type: 'overlay', item: overlay)
+
+  createSectionPointsOverlay: (section) ->
+
+
+  createSectionCaloriesOverlay: (section) ->
+    totalCalories = section.getTotalCalories()
+    completedCalories = section.getCompletedCalories()
+    if(totalCalories != 0 && completedCalories != 0)
+      content = "#{completedCalories}cal / #{totalCalories}cal"
+      percentage = completedCalories / totalCalories
+      overlay = @createSectionOverlayElement(content, percentage)
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
 
@@ -158,6 +180,6 @@ module.exports = todoDecorator =
       isFirstWeek = (weekIndex == 0)
       @decorateWeek(editor, week)
       for section in week.children
-        @decorateSection(editor, section)
+        @decorateSection(editor, section, selectedUnit)
         for item in section.children
           @decorateItem(editor, item, isFirstWeek, todayString, highlightedDay)
