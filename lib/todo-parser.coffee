@@ -98,18 +98,10 @@ module.exports =
         if item.dayString? and item.isDone and item.estimate?
           @dayCompletedDurations[item.dayString].add(item.estimate.duration)
       @dayCompletedDurations
-    getTotalCalories: ->
-      sum = 0
-      for item in @children
-        if item.calories?
-          sum += item.calories.amount
-      sum
-    getCompletedCalories: ->
-      sum = 0
-      for item in @children
-        if item.calories? && item.isDone
-          sum += item.calories.amount
-      sum
+    getTotalAmount: (unit) ->
+      (item.getAmount(unit) for item in @children).reduce( (p, c) -> p + c)
+    getCompletedAmount: (unit) ->
+      (item.getCompletedAmount(unit) for item in @children).reduce( (p, c) -> p + c)
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)
@@ -138,6 +130,16 @@ module.exports =
     actual: actual #TODO might drop support for this
     points: points
     calories: calories
+    getAmount: (unit) ->
+      switch unit
+        when 'time' then estimate.duration
+        when 'cal' then @calories.amount
+        when 'pts' then @points.amount
+        else 0
+    getCompletedAmount: (unit) ->
+      if @isDone
+        @getAmount(unit)
+      else 0
 
   ignoreLine: (rowIndex, text) ->
 

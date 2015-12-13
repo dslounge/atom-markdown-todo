@@ -230,6 +230,28 @@ describe "TodoParser", ->
           testObj = sectionItem.getDoneDurationsPerDay()
           expect(testObj['F'].asHours()).toEqual((10 * 11) / 2)
 
+      describe 'Aggregate Amount Functions', ->
+        section = null
+
+        beforeEach ->
+          testTodoItems = [
+            "- M  70cal  A quick brown fox"
+            "- T  30cal  A quick brown fox"
+            "- F  50cal  DONE  A quick brown fox"
+            "- F  150cal  DONE  A quick brown fox"
+          ]
+
+          section = parser.parseH3Line(0, '### Section title')
+          for text, index in testTodoItems
+            todoItem = parser.parseTodoLine(index, text)
+            section.addTodoItem(todoItem)
+
+        it 'getTotalAmount sums childrens amount for a unit', ->
+          expect(section.getTotalAmount('cal')).toEqual(300)
+
+        it 'getCompletedAmount sums childrens completed amount for a unit', ->
+          expect(section.getCompletedAmount('cal')).toEqual(200)
+
   describe 'parseTodoLine', ->
     output = testLine = null
 
