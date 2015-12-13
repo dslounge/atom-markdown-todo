@@ -65,10 +65,8 @@ module.exports = todoDecorator =
     """
     $('<div/>').html(template).contents()[0]
 
-  decorateWeek: (editor, week) ->
+  decorateWeek: (editor, week, selectedUnit) ->
     marker = @createMarker(editor, week.textRange)
-    #TODO: find a better class name.
-    editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
 
     # Make hours summary
     completedHours = @getDurationString(week.getDoneDuration())
@@ -91,6 +89,9 @@ module.exports = todoDecorator =
     # build the overlay and decorate.
     overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
     editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
+
+  createWeekHoursOverlay: (week) ->
+  createWeekUnitOveray: (week, unit) ->
 
   decorateSection: (editor, section, selectedUnit) ->
     console.log("--decorateSection: " + selectedUnit)
@@ -170,9 +171,10 @@ module.exports = todoDecorator =
     @selectedUnit = selectedUnit
     todayString = moment().format('dd')
     isFirstWeek = false
+    #TODO: This probably double calculates collective amounts.
     for week, weekIndex in tree
       isFirstWeek = (weekIndex == 0)
-      @decorateWeek(editor, week)
+      @decorateWeek(editor, week, selectedUnit)
       for section in week.children
         @decorateSection(editor, section, selectedUnit)
         for item in section.children
