@@ -94,10 +94,20 @@ module.exports = todoDecorator =
         percentage: perDayDone[day].asSeconds() / perDay[day].asSeconds()
       perDayBreakdown.push(breakdown)
 
-    # build the overlay and decorate.
+    # build the overlay
     overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
 
   createWeekUnitOverlay: (week, unit) ->
+    total = week.getTotalAmount(unit)
+    completed = week.getCompletedAmount(unit)
+    if !(total == 0 && completed == 0)
+      content = "#{completed}#{unit} / #{total}#{unit}"
+      percentage = total / completed
+
+      # build daily summary
+      hourSummary = perDayBreakdown = null
+
+      overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
 
   decorateSection: (editor, section, selectedUnit) ->
     if selectedUnit == 'time'

@@ -6,12 +6,16 @@ describe 'TodoDecorator', ->
   beforeEach ->
     mockEditor =
       decorateMarker: ->
+
     mockSection =
       textRange: [[0, 1], [0,10]]
       getTotalAmount: ->
       getCompletedAmount: ->
+
     mockWeek =
       textRange: [[0, 1], [0,10]]
+      getTotalAmount: ->
+      getCompletedAmount: ->
 
     spyOn(mockEditor, 'decorateMarker')
 
@@ -59,6 +63,28 @@ describe 'TodoDecorator', ->
         expect(decorator.createWeekUnitOverlay).toHaveBeenCalled()
         expect(decorator.createWeekHoursOverlay).not.toHaveBeenCalled()
 
+    describe 'createWeekHoursOverlay', ->
+
+    describe 'createWeekUnitOverlay', ->
+      it 'calls week.getTotalAmount and section.getCompletedAmount', ->
+        spyOn(mockWeek, 'getTotalAmount')
+        spyOn(mockWeek, 'getCompletedAmount')
+        decorator.createWeekUnitOverlay(mockWeek, 'cal')
+        expect(mockWeek.getTotalAmount).toHaveBeenCalledWith('cal')
+        expect(mockWeek.getCompletedAmount).toHaveBeenCalledWith('cal')
+
+      it 'creates an overlayElement if the section has amount of requested unit', ->
+        spyOn(mockWeek, 'getTotalAmount').andReturn(2)
+        spyOn(mockWeek, 'getCompletedAmount').andReturn(1)
+        decorator.createWeekUnitOverlay(mockWeek, 'cal')
+        expect(decorator.createWeekOverlayElement).toHaveBeenCalled()
+
+      it 'does not create an overlayElement if the section has no amount of requested unit', ->
+        spyOn(mockWeek, 'getTotalAmount').andReturn(0)
+        spyOn(mockWeek, 'getCompletedAmount').andReturn(0)
+        decorator.createWeekUnitOverlay(mockWeek, 'cal')
+        expect(decorator.createWeekOverlayElement).not.toHaveBeenCalled()
+
   describe 'section decoration', ->
 
     beforeEach ->
@@ -98,7 +124,6 @@ describe 'TodoDecorator', ->
         expect(decorator.createSectionHoursOverlay).not.toHaveBeenCalled()
 
     describe 'createSectionHoursOverlay', ->
-    describe 'createSectionPointsOverlay', ->
 
     describe 'createSectionUnitsOverlay', ->
       it 'calls section.getTotalAmount and section.getCompletedAmount', ->
