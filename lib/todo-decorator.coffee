@@ -97,7 +97,7 @@ module.exports = todoDecorator =
       return
     else if selectedUnit == 'time'
       overlay = @createSectionHoursOverlay(section)
-    else if selectedUnit in ['pts', 'cal']
+    else if selectedUnit in ['pt', 'cal']
       overlay = @createSectionUnitsOverlay(section, selectedUnit)
 
     if overlay != null

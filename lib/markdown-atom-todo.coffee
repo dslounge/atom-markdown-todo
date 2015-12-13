@@ -71,7 +71,7 @@ module.exports = MarkdownAtomTodo =
 
   cycleUnitDisplay: ->
     if @todoMode?
-      options = [null, 'time', 'cal', 'pts']
+      options = [null, 'time', 'pt', 'cal']
       index = options.indexOf(@selectedUnit)
       nextIndex = (index + 1) % options.length
       @displayUnit(options[nextIndex])
