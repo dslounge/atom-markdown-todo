@@ -1,4 +1,5 @@
 moment = require 'moment'
+_ = require 'lodash'
 textConsts = require './todo-text-consts'
 utils = require './utils'
 
@@ -113,9 +114,9 @@ module.exports =
           @dayCompletedDurations[item.dayString].add(item.estimate.duration)
       @dayCompletedDurations
     getTotalAmount: (unit) ->
-      (item.getAmount(unit) for item in @children).reduce( (p, c) -> p + c)
+      (item.getAmount(unit) for item in @children).reduce(_.add, 0)
     getCompletedAmount: (unit) ->
-      (item.getCompletedAmount(unit) for item in @children).reduce( (p, c) -> p + c)
+      (item.getCompletedAmount(unit) for item in @children).reduce(_.add, 0)
     getTotalAmountPerDay: (unit) ->
       baseAmount = [0, 0, 0, 0, 0, 0, 0]
       for item in @children
