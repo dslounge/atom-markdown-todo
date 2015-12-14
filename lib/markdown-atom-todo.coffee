@@ -27,10 +27,14 @@ module.exports = MarkdownAtomTodo =
     # registers a listener, only after this package has been activated though.
     @subscriptions.add atom.workspace.observeTextEditors (editor) =>
       editor.onDidSave =>
-        extension = editor.getTitle().split('.').pop()
-        #TODO: Make this work with .todo.md files
-        if @todoMode and (extension == 'md')
+        if @todoMode
           @showTodo()
+
+  isTodoDoc: ->
+    editor = atom.workspace.getActiveTextEditor()
+    title = editor.getTitle()
+    suffix = 'todo.md'
+    return (title.indexOf(suffix, title.length - suffix.length) != -1)
 
   deactivate: ->
     @subscriptions.dispose()
@@ -69,16 +73,17 @@ module.exports = MarkdownAtomTodo =
       @displayUnit(options[nextIndex])
 
   showTodo: ->
-    editor = atom.workspace.getActiveTextEditor()
-    decorator.destroyMarkers(editor)
+    if @isTodoDoc()
+      editor = atom.workspace.getActiveTextEditor()
+      decorator.destroyMarkers(editor)
 
-    # Pass each editor line to the parser and get the resulting model
-    parser.reset()
-    for i in [0..editor.getLastBufferRow()]
-      rowText = editor.lineTextForBufferRow(i)
-      parser.parseLine(i, rowText)
+      # Pass each editor line to the parser and get the resulting model
+      parser.reset()
+      for i in [0..editor.getLastBufferRow()]
+        rowText = editor.lineTextForBufferRow(i)
+        parser.parseLine(i, rowText)
 
-    decorator.decorateTodo(editor, parser.todoModel, @highlightedDay, @selectedUnit)
+      decorator.decorateTodo(editor, parser.todoModel, @highlightedDay, @selectedUnit)
 
   hideTodo: ->
     editor = atom.workspace.getActiveTextEditor()
