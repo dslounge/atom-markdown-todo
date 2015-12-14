@@ -18,14 +18,6 @@ module.exports = MarkdownAtomTodo =
 
     #register the command.
     @subscriptions.add atom.commands.add 'atom-workspace', 'markdown-atom-todo:toggle': => @toggle()
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Sunday": => @highlightDay('U')
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Monday": => @highlightDay('M')
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Tuesday": => @highlightDay('T')
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Wednesday": => @highlightDay('W')
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Thursday": => @highlightDay('R')
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Friday": => @highlightDay('F')
-    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Saturday": => @highlightDay('S')
-
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle day": => @cycleDayHighlight()
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle units": => @cycleUnitDisplay()
 
