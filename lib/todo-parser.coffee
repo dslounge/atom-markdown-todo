@@ -67,9 +67,9 @@ module.exports =
       duration
 
     getTotalAmount: (unit) ->
-      (section.getTotalAmount(unit) for section in @children).reduce( (p, c) -> p + c)
+      (section.getTotalAmount(unit) for section in @children).reduce(_.add, 0)
     getCompletedAmount: (unit) ->
-      (section.getCompletedAmount(unit) for section in @children).reduce( (p, c) -> p + c)
+      (section.getCompletedAmount(unit) for section in @children).reduce(_.add, 0)
 
     getTotalAmountPerDay: (unit) ->
       dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
