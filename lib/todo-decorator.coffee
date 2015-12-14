@@ -101,13 +101,24 @@ module.exports = todoDecorator =
     total = week.getTotalAmount(unit)
     completed = week.getCompletedAmount(unit)
     if !(total == 0 && completed == 0)
-      content = "#{completed}#{unit} / #{total}#{unit}"
+      weekSummary = "#{completed}#{unit} / #{total}#{unit}"
       percentage = total / completed
-
       # build daily summary
-      hourSummary = perDayBreakdown = null
+      totalPerDay = week.getTotalAmountPerDay(unit)
+      completedPerDay = week.getCompletedAmountPerDay(unit)
+      perDayBreakdown = @createUnitDailyBreakdown(totalPerDay, completedPerDay, unit)
 
-      overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
+      overlayElement = @createWeekOverlayElement(weekSummary, perDayBreakdown, percentage)
+
+  createUnitDailyBreakdown: (totalPerDay, completedPerDay, unit) ->
+    perDayBreakdown = []
+    for day, index in textConsts.days
+      breakdown =
+        day: day
+        unitString: "#{completedPerDay[index]}#{unit}"
+        percentage: completedPerDay[index] / totalPerDay[index]
+      perDayBreakdown.push(breakdown)
+    perDayBreakdown
 
   decorateSection: (editor, section, selectedUnit) ->
     if selectedUnit == 'time'

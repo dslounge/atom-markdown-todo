@@ -16,6 +16,8 @@ describe 'TodoDecorator', ->
       textRange: [[0, 1], [0,10]]
       getTotalAmount: ->
       getCompletedAmount: ->
+      getTotalAmountPerDay: ->
+      getCompletedAmountPerDay: ->
 
     spyOn(mockEditor, 'decorateMarker')
 
@@ -66,12 +68,22 @@ describe 'TodoDecorator', ->
     describe 'createWeekHoursOverlay', ->
 
     describe 'createWeekUnitOverlay', ->
+      beforeEach ->
+        spyOn(mockWeek, 'getCompletedAmountPerDay')
+        spyOn(mockWeek, 'getTotalAmountPerDay')
+        spyOn(decorator, 'createUnitDailyBreakdown')
+
       it 'calls week.getTotalAmount and section.getCompletedAmount', ->
         spyOn(mockWeek, 'getTotalAmount')
         spyOn(mockWeek, 'getCompletedAmount')
         decorator.createWeekUnitOverlay(mockWeek, 'cal')
         expect(mockWeek.getTotalAmount).toHaveBeenCalledWith('cal')
         expect(mockWeek.getCompletedAmount).toHaveBeenCalledWith('cal')
+
+      it 'calls week.getTotalAmountPerDay and getCompletedAmountPerDay with the right unit', ->
+        decorator.createWeekUnitOverlay(mockWeek, 'cal')
+        expect(mockWeek.getTotalAmountPerDay).toHaveBeenCalledWith('cal')
+        expect(mockWeek.getCompletedAmountPerDay).toHaveBeenCalledWith('cal')
 
       it 'creates an overlayElement if the section has amount of requested unit', ->
         spyOn(mockWeek, 'getTotalAmount').andReturn(2)
@@ -84,6 +96,19 @@ describe 'TodoDecorator', ->
         spyOn(mockWeek, 'getCompletedAmount').andReturn(0)
         decorator.createWeekUnitOverlay(mockWeek, 'cal')
         expect(decorator.createWeekOverlayElement).not.toHaveBeenCalled()
+
+    describe 'createUnitDailyBreakdown', ->
+      completed = total = null
+      beforeEach ->
+        completed = [1, 2, 3, 4, 5, 6, 7]
+        total = [10, 20, 30, 40, 50, 60, 70]
+
+      it 'creates the right breakdown', ->
+        testBreakDown = decorator.createUnitDailyBreakdown(total, completed, 'pants')
+        testDay = testBreakDown[3]
+        expect(testDay.day).toEqual('W')
+        expect(testDay.unitString).toEqual('4pants')
+        expect(testDay.percentage).toEqual(.1)
 
   describe 'section decoration', ->
 
