@@ -32,7 +32,7 @@ module.exports = todoDecorator =
     for day in perDayBreakdown
       innerText = """
       <span class="daySummary">
-        <span class="day">#{day.day}</span><span class="hours">#{day.durationString}</span>
+        <span class="day">#{day.day}</span><span class="hours">#{day.amountString}</span>
       <span>
       """
       template = template.concat(@makeProgressBlock(innerText, day.percentage))
@@ -40,7 +40,6 @@ module.exports = todoDecorator =
 
 
   createWeekOverlayElement: (hourSummary, perDayBreakdown, percentage) ->
-    testBlock = @makeProgressBlock("hello", .7)
     template = """
     <div class="same-line-overlay">
       <div class="section-estimate">
@@ -90,7 +89,7 @@ module.exports = todoDecorator =
     for day in textConsts.days
       breakdown =
         day: day
-        durationString: @getDurationString(perDay[day])
+        amountString: @getDurationString(perDay[day])
         percentage: perDayDone[day].asSeconds() / perDay[day].asSeconds()
       perDayBreakdown.push(breakdown)
 
@@ -115,7 +114,7 @@ module.exports = todoDecorator =
     for day, index in textConsts.days
       breakdown =
         day: day
-        unitString: "#{completedPerDay[index]}#{unit}"
+        amountString: "#{completedPerDay[index]}#{unit}"
         percentage: completedPerDay[index] / totalPerDay[index]
       perDayBreakdown.push(breakdown)
     perDayBreakdown

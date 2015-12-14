@@ -107,7 +107,7 @@ describe 'TodoDecorator', ->
         testBreakDown = decorator.createUnitDailyBreakdown(total, completed, 'pants')
         testDay = testBreakDown[3]
         expect(testDay.day).toEqual('W')
-        expect(testDay.unitString).toEqual('4pants')
+        expect(testDay.amountString).toEqual('4pants')
         expect(testDay.percentage).toEqual(.1)
 
   describe 'section decoration', ->
