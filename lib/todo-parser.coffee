@@ -70,6 +70,13 @@ module.exports =
     getCompletedAmount: (unit) ->
       (section.getCompletedAmount(unit) for section in @children).reduce( (p, c) -> p + c)
 
+    getTotalAmountPerDay: (unit) ->
+      dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
+      (item.getTotalAmountPerDay(unit) for section in @children).reduce()
+    getCompletedAmountPerDay: (unit) ->
+      dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
+      (item.getTotalAmountPerDay(unit) for section in @children)
+
   parseH3Line: (index, text) ->
     title = text.substring(4)
     bufferRowIndex: index
