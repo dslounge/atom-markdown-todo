@@ -46,7 +46,6 @@ module.exports =
         for day in textConsts.days
           @dayDurations[day].add(sectionEstimates[day])
       @dayDurations
-    # TODO: Needs to be completed
     getDoneDurationsPerDay: ->
       #TODO: It's dumb to have to track @dayCompletedDurations. We should be able to make one on the fly.
       for section in @children
@@ -118,7 +117,19 @@ module.exports =
     getCompletedAmount: (unit) ->
       (item.getCompletedAmount(unit) for item in @children).reduce( (p, c) -> p + c)
     getTotalAmountPerDay: (unit) ->
+      baseAmount = [0, 0, 0, 0, 0, 0, 0]
+      for item in @children
+        index = textConsts.days.indexOf(item.dayString)
+        if(index != -1)
+          baseAmount[index] = baseAmount[index] + item.getAmount(unit)
+      baseAmount
     getCompletedAmountPerDay: (unit) ->
+      baseAmount = [0, 0, 0, 0, 0, 0, 0]
+      for item in @children
+        index = textConsts.days.indexOf(item.dayString)
+        if(index != -1)
+          baseAmount[index] = baseAmount[index] + item.getCompletedAmount(unit)
+      baseAmount
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)

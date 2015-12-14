@@ -320,6 +320,40 @@ describe "TodoParser", ->
         it 'getCompletedAmount sums childrens completed amount for a unit', ->
           expect(section.getCompletedAmount('cal')).toEqual(200)
 
+      describe 'AmountPerDay functions', ->
+        section = null
+        beforeEach ->
+          testTodoItems = [
+            "- T  70cal  A quick brown fox"
+            "- T  70cal  another tuesday"
+            "- W  30cal  A quick brown fox"
+            "- R  50cal  DONE  A quick brown fox"
+            "- R  50cal  DONE  another thursday"
+            "- F  150cal  DONE  A quick brown fox"
+          ]
+          section = parser.parseH3Line(0, '### Section title')
+          for text, index in testTodoItems
+            todoItem = parser.parseTodoLine(index, text)
+            section.addTodoItem(todoItem)
+
+        describe 'getTotalAmountPerDay', ->
+          it 'returns an array of 0s if requesting unit not present', ->
+            testVal = section.getTotalAmountPerDay('pants')
+            expect(testVal).toEqual([0, 0, 0, 0, 0, 0, 0])
+
+          it 'returns an array of aggregated total amounts', ->
+            testVal = section.getTotalAmountPerDay('cal')
+            expect(testVal).toEqual([0, 0, 140, 30, 100, 150, 0])
+
+        describe 'getCompletedAmountPerDay', ->
+          it 'returns an array of 0s if requesting unit not present', ->
+            testVal = section.getCompletedAmountPerDay('pants')
+            expect(testVal).toEqual([0, 0, 0, 0, 0, 0, 0])
+
+          it 'returns an array of aggregated total amounts', ->
+            testVal = section.getCompletedAmountPerDay('cal')
+            expect(testVal).toEqual([0, 0, 0, 0, 100, 150, 0])
+
   describe 'parseTodoLine', ->
     output = testLine = null
 
