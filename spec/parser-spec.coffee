@@ -141,6 +141,74 @@ describe "TodoParser", ->
 
       describe 'getDoneDuration', ->
 
+      describe 'amount functions', ->
+
+        week = section1 = section2 = null
+
+        beforeEach ->
+          week = parser.parseH2Line(rowIndex, h2_valid)
+          section1 = parser.parseH3Line(rowIndex, "### project 1 ")
+          section2 = parser.parseH3Line(rowIndex, "### project 2 ")
+          week.children.push(section1)
+          week.children.push(section2)
+          spyOn(section1, 'getTotalAmount').andReturn(10)
+          spyOn(section1, 'getCompletedAmount').andReturn(3)
+
+          spyOn(section2, 'getTotalAmount').andReturn(20)
+          spyOn(section2, 'getCompletedAmount').andReturn(10)
+
+        describe 'getTotalAmount', ->
+          it 'calls getTotalAmount for each section', ->
+            week.getTotalAmount('pants')
+            expect(section1.getTotalAmount).toHaveBeenCalledWith('pants')
+            expect(section2.getTotalAmount).toHaveBeenCalledWith('pants')
+
+          it 'adds up the total amounts for its sections', ->
+            testAmount = week.getTotalAmount('pants')
+            expect(testAmount).toEqual(30)
+
+        describe 'getCompletedAmount', ->
+          it 'calls getCompletedAmount for each section', ->
+            week.getCompletedAmount('pants')
+            expect(section1.getCompletedAmount).toHaveBeenCalledWith('pants')
+            expect(section2.getCompletedAmount).toHaveBeenCalledWith('pants')
+
+          it 'adds up the completed amounts for its sections', ->
+            testCompleted = week.getCompletedAmount('pants')
+            expect(testCompleted).toEqual(13)
+
+      describe 'per day amount functions', ->
+        week = section1 = section2 = null
+        beforeEach ->
+          week = parser.parseH2Line(rowIndex, h2_valid)
+          section1 = parser.parseH3Line(rowIndex, "### project 1 ")
+          section2 = parser.parseH3Line(rowIndex, "### project 2 ")
+          week.children.push(section1)
+          week.children.push(section2)
+          spyOn(section1, 'getTotalAmountPerDay').andReturn([10, 20, 30, 40, 50, 60, 70])
+          spyOn(section1, 'getCompletedAmountPerDay').andReturn([1, 2, 3, 4, 5, 6, 7])
+
+          spyOn(section2, 'getTotalAmountPerDay').andReturn([90, 80, 70, 60, 50, 40, 30])
+          spyOn(section2, 'getCompletedAmountPerDay').andReturn([9, 8, 7, 6, 5, 4, 3])
+
+        describe 'getTotalAmountsPerDay', ->
+          it 'calls section functions with the right unit', ->
+            week.getTotalAmountPerDay('pants')
+            expect(section1.getTotalAmountPerDay).toHaveBeenCalledWith('pants')
+            expect(section2.getTotalAmountPerDay).toHaveBeenCalledWith('pants')
+          it 'adds amounts correctly', ->
+            testResult = week.getTotalAmountPerDay('pants')
+            expect(testResult).toEqual([100, 100, 100, 100, 100, 100, 100])
+
+        describe 'getCompletedAmountPerDay', ->
+          it 'calls section functions with the right unit', ->
+            week.getCompletedAmountPerDay('pants')
+            expect(section1.getCompletedAmountPerDay).toHaveBeenCalledWith('pants')
+            expect(section2.getCompletedAmountPerDay).toHaveBeenCalledWith('pants')
+          it 'adds amounts correctly', ->
+            testResult = week.getCompletedAmountPerDay('pants')
+            expect(testResult).toEqual([10, 10, 10, 10, 10, 10, 10])
+
   describe 'parseH3Line', ->
 
     describe 'with valid input', ->
@@ -230,6 +298,62 @@ describe "TodoParser", ->
           testObj = sectionItem.getDoneDurationsPerDay()
           expect(testObj['F'].asHours()).toEqual((10 * 11) / 2)
 
+      describe 'Aggregate Amount Functions', ->
+        section = null
+
+        beforeEach ->
+          testTodoItems = [
+            "- M  70cal  A quick brown fox"
+            "- T  30cal  A quick brown fox"
+            "- F  50cal  DONE  A quick brown fox"
+            "- F  150cal  DONE  A quick brown fox"
+          ]
+
+          section = parser.parseH3Line(0, '### Section title')
+          for text, index in testTodoItems
+            todoItem = parser.parseTodoLine(index, text)
+            section.addTodoItem(todoItem)
+
+        it 'getTotalAmount sums childrens amount for a unit', ->
+          expect(section.getTotalAmount('cal')).toEqual(300)
+
+        it 'getCompletedAmount sums childrens completed amount for a unit', ->
+          expect(section.getCompletedAmount('cal')).toEqual(200)
+
+      describe 'AmountPerDay functions', ->
+        section = null
+        beforeEach ->
+          testTodoItems = [
+            "- T  70cal  A quick brown fox"
+            "- T  70cal  another tuesday"
+            "- W  30cal  A quick brown fox"
+            "- R  50cal  DONE  A quick brown fox"
+            "- R  50cal  DONE  another thursday"
+            "- F  150cal  DONE  A quick brown fox"
+          ]
+          section = parser.parseH3Line(0, '### Section title')
+          for text, index in testTodoItems
+            todoItem = parser.parseTodoLine(index, text)
+            section.addTodoItem(todoItem)
+
+        describe 'getTotalAmountPerDay', ->
+          it 'returns an array of 0s if requesting unit not present', ->
+            testVal = section.getTotalAmountPerDay('pants')
+            expect(testVal).toEqual([0, 0, 0, 0, 0, 0, 0])
+
+          it 'returns an array of aggregated total amounts', ->
+            testVal = section.getTotalAmountPerDay('cal')
+            expect(testVal).toEqual([0, 0, 140, 30, 100, 150, 0])
+
+        describe 'getCompletedAmountPerDay', ->
+          it 'returns an array of 0s if requesting unit not present', ->
+            testVal = section.getCompletedAmountPerDay('pants')
+            expect(testVal).toEqual([0, 0, 0, 0, 0, 0, 0])
+
+          it 'returns an array of aggregated total amounts', ->
+            testVal = section.getCompletedAmountPerDay('cal')
+            expect(testVal).toEqual([0, 0, 0, 0, 100, 150, 0])
+
   describe 'parseTodoLine', ->
     output = testLine = null
 
@@ -315,6 +439,44 @@ describe "TodoParser", ->
           testLine = '- T   A task for Tuesday'
           output = parser.parseTodoLine(1, testLine)
           expect(output.estimate).toBeNull()
+
+    describe 'amount functions', ->
+      describe 'getAmount', ->
+        describe 'pts', ->
+          it 'returns pts amount if item has pts', ->
+            todoItem = parser.parseTodoLine(0, '- T  3pt  A task for Tuesday')
+            testAmount = todoItem.getAmount('pt')
+            expect(testAmount).toEqual(3)
+
+          it 'returns 0 if item does not have pts', ->
+            todoItem = parser.parseTodoLine(0, '- T  A task for Tuesday')
+            testAmount = todoItem.getAmount('pt')
+            expect(testAmount).toEqual(0)
+
+        describe 'cal', ->
+          it 'returns cal amount if item has cal', ->
+            todoItem = parser.parseTodoLine(0, '- T  3cal  A task for Tuesday')
+            testAmount = todoItem.getAmount('cal')
+            expect(testAmount).toEqual(3)
+
+          it 'returns 0 if item does not have cal', ->
+            todoItem = parser.parseTodoLine(0, '- T  A task for Tuesday')
+            testAmount = todoItem.getAmount('cal')
+            expect(testAmount).toEqual(0)
+
+      describe 'getCompletedAmount', ->
+        it 'calls @getAmount if item is done', ->
+          todoItem = parser.parseTodoLine(0, '- T  DONE A task for Tuesday')
+          spyOn(todoItem, 'getAmount')
+          testAmount = todoItem.getCompletedAmount('pants')
+          expect(todoItem.getAmount).toHaveBeenCalledWith('pants')
+
+        it 'does not call @getAmount and returns 0 if item is not done', ->
+          todoItem = parser.parseTodoLine(0, '- T   A task for Tuesday')
+          spyOn(todoItem, 'getAmount')
+          testAmount = todoItem.getCompletedAmount('pants')
+          expect(todoItem.getAmount).not.toHaveBeenCalled()
+          expect(testAmount).toEqual(0)
 
   describe 'dateFromHeader', ->
     testOutput = null

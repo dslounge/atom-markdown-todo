@@ -1,5 +1,7 @@
 moment = require 'moment'
+_ = require 'lodash'
 textConsts = require './todo-text-consts'
+utils = require './utils'
 
 module.exports =
   todoModel: []
@@ -45,7 +47,6 @@ module.exports =
         for day in textConsts.days
           @dayDurations[day].add(sectionEstimates[day])
       @dayDurations
-    # TODO: Needs to be completed
     getDoneDurationsPerDay: ->
       #TODO: It's dumb to have to track @dayCompletedDurations. We should be able to make one on the fly.
       for section in @children
@@ -64,6 +65,20 @@ module.exports =
       for section in @children
         duration.add(section.getDoneDuration())
       duration
+
+    getTotalAmount: (unit) ->
+      (section.getTotalAmount(unit) for section in @children).reduce( (p, c) -> p + c)
+    getCompletedAmount: (unit) ->
+      (section.getCompletedAmount(unit) for section in @children).reduce( (p, c) -> p + c)
+
+    getTotalAmountPerDay: (unit) ->
+      dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
+      (section.getTotalAmountPerDay(unit) for section in @children)
+        .reduce(utils.elementSumArray, dailyAmounts)
+    getCompletedAmountPerDay: (unit) ->
+      dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
+      (section.getCompletedAmountPerDay(unit) for section in @children)
+        .reduce(utils.elementSumArray, dailyAmounts)
 
   parseH3Line: (index, text) ->
     title = text.substring(4)
@@ -98,6 +113,24 @@ module.exports =
         if item.dayString? and item.isDone and item.estimate?
           @dayCompletedDurations[item.dayString].add(item.estimate.duration)
       @dayCompletedDurations
+    getTotalAmount: (unit) ->
+      (item.getAmount(unit) for item in @children).reduce(_.add, 0)
+    getCompletedAmount: (unit) ->
+      (item.getCompletedAmount(unit) for item in @children).reduce(_.add, 0)
+    getTotalAmountPerDay: (unit) ->
+      baseAmount = [0, 0, 0, 0, 0, 0, 0]
+      for item in @children
+        index = textConsts.days.indexOf(item.dayString)
+        if(index != -1)
+          baseAmount[index] = baseAmount[index] + item.getAmount(unit)
+      baseAmount
+    getCompletedAmountPerDay: (unit) ->
+      baseAmount = [0, 0, 0, 0, 0, 0, 0]
+      for item in @children
+        index = textConsts.days.indexOf(item.dayString)
+        if(index != -1)
+          baseAmount[index] = baseAmount[index] + item.getCompletedAmount(unit)
+      baseAmount
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)
@@ -126,6 +159,16 @@ module.exports =
     actual: actual #TODO might drop support for this
     points: points
     calories: calories
+    getAmount: (unit) ->
+      #TODO: This should be generalized
+      switch unit
+        when 'cal' then @calories?.amount || 0
+        when 'pt' then @points?.amount || 0
+        else 0
+    getCompletedAmount: (unit) ->
+      if @isDone
+        @getAmount(unit)
+      else 0
 
   ignoreLine: (rowIndex, text) ->
 

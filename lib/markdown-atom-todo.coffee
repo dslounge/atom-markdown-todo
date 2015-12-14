@@ -8,6 +8,7 @@ module.exports = MarkdownAtomTodo =
   subscriptions: null
   todoMode: false
   highlightedDay: null
+  selectedUnit: 'time'
 
   # Activate method gets called the first time the command is called.
   activate: (state) ->
@@ -26,6 +27,7 @@ module.exports = MarkdownAtomTodo =
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:highlight Saturday": => @highlightDay('S')
 
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle day": => @cycleDayHighlight()
+    @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:cycle units": => @cycleUnitDisplay()
 
     # add ability to remove highlight
     @subscriptions.add atom.commands.add 'atom-workspace', "markdown-atom-todo:clear highlight": => @highlightDay(null)
@@ -46,7 +48,6 @@ module.exports = MarkdownAtomTodo =
 
   #TODO: Eventually this should be tracked for each editor.
   toggle: ->
-    console.log "toggle #{@todoMode}"
     @todoMode = !@todoMode
     if @todoMode
       @showTodo()
@@ -54,19 +55,26 @@ module.exports = MarkdownAtomTodo =
       @hideTodo()
 
   highlightDay: (dayKey) ->
-    console.log "highlight #{dayKey}"
     @highlightedDay = dayKey
+    @showTodo()
+
+  displayUnit: (selectedUnit) ->
+    @selectedUnit = selectedUnit
     @showTodo()
 
   cycleDayHighlight: ->
     if @todoMode?
-      console.log "highlight next day. current: #{@highlightedDay}"
       options = [null, 'U', 'M', 'T', 'W', 'R', 'F', 'S']
-
       index = options.indexOf(@highlightedDay)
       nextIndex = (index + 1) % options.length
-      console.log "nextIndex: #{nextIndex}: #{options[nextIndex]}"
       @highlightDay(options[nextIndex])
+
+  cycleUnitDisplay: ->
+    if @todoMode?
+      options = [null, 'time', 'pt', 'cal']
+      index = options.indexOf(@selectedUnit)
+      nextIndex = (index + 1) % options.length
+      @displayUnit(options[nextIndex])
 
   showTodo: ->
     editor = atom.workspace.getActiveTextEditor()
@@ -78,7 +86,7 @@ module.exports = MarkdownAtomTodo =
       rowText = editor.lineTextForBufferRow(i)
       parser.parseLine(i, rowText)
 
-    decorator.decorateTodo(editor, parser.todoModel, @highlightedDay)
+    decorator.decorateTodo(editor, parser.todoModel, @highlightedDay, @selectedUnit)
 
   hideTodo: ->
     editor = atom.workspace.getActiveTextEditor()

@@ -32,7 +32,7 @@ module.exports = todoDecorator =
     for day in perDayBreakdown
       innerText = """
       <span class="daySummary">
-        <span class="day">#{day.day}</span><span class="hours">#{day.durationString}</span>
+        <span class="day">#{day.day}</span><span class="hours">#{day.amountString}</span>
       <span>
       """
       template = template.concat(@makeProgressBlock(innerText, day.percentage))
@@ -40,7 +40,6 @@ module.exports = todoDecorator =
 
 
   createWeekOverlayElement: (hourSummary, perDayBreakdown, percentage) ->
-    testBlock = @makeProgressBlock("hello", .7)
     template = """
     <div class="same-line-overlay">
       <div class="section-estimate">
@@ -65,43 +64,84 @@ module.exports = todoDecorator =
     """
     $('<div/>').html(template).contents()[0]
 
-  decorateWeek: (editor, week) ->
-    marker = @createMarker(editor, week.textRange)
-    #TODO: find a better class name.
-    editor.decorateMarker(marker, type: 'highlight', class: "my-line-class")
+  decorateWeek: (editor, week, selectedUnit) ->
+    if selectedUnit == 'time'
+      overlayElement = @createWeekHoursOverlay(week)
+    else
+      overlayElement = @createWeekUnitOverlay(week, selectedUnit)
 
-    # Make hours summary
+    if overlayElement?
+      marker = @createMarker(editor, week.textRange)
+      editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
+
+  createWeekHoursOverlay: (week) ->
+    # aggregate summary
     completedHours = @getDurationString(week.getDoneDuration())
     totalHours = @getDurationString(week.getTotalDuration())
     hourSummary = "#{completedHours} / #{totalHours}"
-
     percentage = week.getDoneDuration().asSeconds() / week.getTotalDuration().asSeconds()
 
-    # Make per day summary
+    # Daily summary
     perDayBreakdown = []
     perDay = week.getEstimatesPerDay()
     perDayDone = week.getDoneDurationsPerDay()
     for day in textConsts.days
       breakdown =
         day: day
-        durationString: @getDurationString(perDay[day])
+        amountString: @getDurationString(perDay[day])
         percentage: perDayDone[day].asSeconds() / perDay[day].asSeconds()
       perDayBreakdown.push(breakdown)
 
-    # build the overlay and decorate.
+    # build the overlay
     overlayElement = @createWeekOverlayElement(hourSummary, perDayBreakdown, percentage)
-    editor.decorateMarker(marker, type: 'overlay', item: overlayElement)
 
-  decorateSection: (editor, section) ->
-    marker = @createMarker(editor, section.textRange)
+  createWeekUnitOverlay: (week, unit) ->
+    total = week.getTotalAmount(unit)
+    completed = week.getCompletedAmount(unit)
+    if !(total == 0 && completed == 0)
+      weekSummary = "#{completed}#{unit} / #{total}#{unit}"
+      percentage = total / completed
+      # build daily summary
+      totalPerDay = week.getTotalAmountPerDay(unit)
+      completedPerDay = week.getCompletedAmountPerDay(unit)
+      perDayBreakdown = @createUnitDailyBreakdown(totalPerDay, completedPerDay, unit)
 
+      overlayElement = @createWeekOverlayElement(weekSummary, perDayBreakdown, percentage)
+
+  createUnitDailyBreakdown: (totalPerDay, completedPerDay, unit) ->
+    perDayBreakdown = []
+    for day, index in textConsts.days
+      breakdown =
+        day: day
+        amountString: "#{completedPerDay[index]}#{unit}"
+        percentage: completedPerDay[index] / totalPerDay[index]
+      perDayBreakdown.push(breakdown)
+    perDayBreakdown
+
+  decorateSection: (editor, section, selectedUnit) ->
+    if selectedUnit == 'time'
+      overlay = @createSectionHoursOverlay(section)
+    else
+      overlay = @createSectionUnitsOverlay(section, selectedUnit)
+
+    if overlay?
+      marker = @createMarker(editor, section.textRange)
+      editor.decorateMarker(marker, type: 'overlay', item: overlay)
+
+  createSectionHoursOverlay: (section) ->
     totalHours = @getDurationString(section.estimateTotalDuration)
     completedHours = @getDurationString(section.estimateDoneDuration)
     content = "#{completedHours} / #{totalHours}"
-
     percentage = section.estimateDoneDuration.asSeconds() / section.estimateTotalDuration.asSeconds()
     overlay = @createSectionOverlayElement(content, percentage)
-    editor.decorateMarker(marker, type: 'overlay', item: overlay)
+
+  createSectionUnitsOverlay: (section, unit) ->
+    total = section.getTotalAmount(unit)
+    completed = section.getCompletedAmount(unit)
+    if !(total == 0 && completed == 0)
+      content = "#{completed}#{unit} / #{total}#{unit}"
+      percentage = total / completed
+      overlay = @createSectionOverlayElement(content, percentage)
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
 
@@ -149,14 +189,16 @@ module.exports = todoDecorator =
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
 
 
-  decorateTodo: (editor, tree, highlightedDay) ->
+  decorateTodo: (editor, tree, highlightedDay, selectedUnit) ->
     @highlightedDay = highlightedDay
+    @selectedUnit = selectedUnit
     todayString = moment().format('dd')
     isFirstWeek = false
+    #TODO: This probably double calculates collective amounts.
     for week, weekIndex in tree
       isFirstWeek = (weekIndex == 0)
-      @decorateWeek(editor, week)
+      @decorateWeek(editor, week, selectedUnit)
       for section in week.children
-        @decorateSection(editor, section)
+        @decorateSection(editor, section, selectedUnit)
         for item in section.children
           @decorateItem(editor, item, isFirstWeek, todayString, highlightedDay)

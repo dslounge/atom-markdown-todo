@@ -11,6 +11,48 @@ describe "MarkdownAtomTodo", ->
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
     activationPromise = atom.packages.activatePackage('markdown-atom-todo')
+    MarkdownAtomTodo.todoMode = true
+
+  describe "cycleDayHighlight", ->
+
+    beforeEach ->
+      spyOn(MarkdownAtomTodo, 'highlightDay')
+
+    it 'does no work when not in todoMode', ->
+      MarkdownAtomTodo.todoMode = false
+
+    it 'works if in todoMode', ->
+      MarkdownAtomTodo.cycleDayHighlight()
+      expect(MarkdownAtomTodo.highlightDay).toHaveBeenCalled()
+
+    it 'cycles through the days', ->
+      days = [null, 'U', 'M', 'T', 'W', 'R', 'F', 'S']
+      expectations = ['U', 'M', 'T', 'W', 'R', 'F', 'S', null]
+      for day, index in days
+        MarkdownAtomTodo.highlightedDay = day
+        expected = expectations[index]
+        MarkdownAtomTodo.cycleDayHighlight()
+        expect(MarkdownAtomTodo.highlightDay).toHaveBeenCalledWith(expected)
+
+  describe "cycleUnitDisplay", ->
+    beforeEach ->
+      spyOn(MarkdownAtomTodo, 'displayUnit')
+
+    it 'does no work when not in todoMode', ->
+      MarkdownAtomTodo.todoMode = false
+
+    it 'works if in todoMode', ->
+      MarkdownAtomTodo.displayUnit()
+      expect(MarkdownAtomTodo.displayUnit).toHaveBeenCalled()
+
+    it 'cycles through the units', ->
+      units = [null, 'time', 'pt', 'cal']
+      expectations = ['time', 'pt', 'cal', null]
+      for unit, index in units
+        MarkdownAtomTodo.selectedUnit = unit
+        expected = expectations[index]
+        MarkdownAtomTodo.cycleUnitDisplay()
+        expect(MarkdownAtomTodo.displayUnit).toHaveBeenCalledWith(expected)
 
   describe "when the markdown-atom-todo:toggle event is triggered", ->
     it "hides and shows the modal panel", ->
