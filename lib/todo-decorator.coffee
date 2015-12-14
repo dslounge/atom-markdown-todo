@@ -65,7 +65,6 @@ module.exports = todoDecorator =
     $('<div/>').html(template).contents()[0]
 
   decorateWeek: (editor, week, selectedUnit) ->
-    console.log("--decorateWeek--: " + selectedUnit)
     if selectedUnit == 'time'
       overlayElement = @createWeekHoursOverlay(week)
     else
