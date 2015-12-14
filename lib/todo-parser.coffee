@@ -1,5 +1,6 @@
 moment = require 'moment'
 textConsts = require './todo-text-consts'
+utils = require './utils'
 
 module.exports =
   todoModel: []
@@ -72,10 +73,12 @@ module.exports =
 
     getTotalAmountPerDay: (unit) ->
       dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
-      (item.getTotalAmountPerDay(unit) for section in @children).reduce()
+      (section.getTotalAmountPerDay(unit) for section in @children)
+        .reduce(utils.elementSumArray, dailyAmounts)
     getCompletedAmountPerDay: (unit) ->
       dailyAmounts = [0, 0, 0, 0, 0, 0, 0]
-      (item.getTotalAmountPerDay(unit) for section in @children)
+      (section.getCompletedAmountPerDay(unit) for section in @children)
+        .reduce(utils.elementSumArray, dailyAmounts)
 
   parseH3Line: (index, text) ->
     title = text.substring(4)
@@ -114,6 +117,8 @@ module.exports =
       (item.getAmount(unit) for item in @children).reduce( (p, c) -> p + c)
     getCompletedAmount: (unit) ->
       (item.getCompletedAmount(unit) for item in @children).reduce( (p, c) -> p + c)
+    getTotalAmountPerDay: (unit) ->
+    getCompletedAmountPerDay: (unit) ->
 
   parseTodoLine: (rowIndex, text) ->
     doneIndex = text.search(textConsts.regex.doneBadge)

@@ -177,6 +177,38 @@ describe "TodoParser", ->
             testCompleted = week.getCompletedAmount('pants')
             expect(testCompleted).toEqual(13)
 
+      describe 'per day amount functions', ->
+        week = section1 = section2 = null
+        beforeEach ->
+          week = parser.parseH2Line(rowIndex, h2_valid)
+          section1 = parser.parseH3Line(rowIndex, "### project 1 ")
+          section2 = parser.parseH3Line(rowIndex, "### project 2 ")
+          week.children.push(section1)
+          week.children.push(section2)
+          spyOn(section1, 'getTotalAmountPerDay').andReturn([10, 20, 30, 40, 50, 60, 70])
+          spyOn(section1, 'getCompletedAmountPerDay').andReturn([1, 2, 3, 4, 5, 6, 7])
+
+          spyOn(section2, 'getTotalAmountPerDay').andReturn([90, 80, 70, 60, 50, 40, 30])
+          spyOn(section2, 'getCompletedAmountPerDay').andReturn([9, 8, 7, 6, 5, 4, 3])
+
+        describe 'getTotalAmountsPerDay', ->
+          it 'calls section functions with the right unit', ->
+            week.getTotalAmountPerDay('pants')
+            expect(section1.getTotalAmountPerDay).toHaveBeenCalledWith('pants')
+            expect(section2.getTotalAmountPerDay).toHaveBeenCalledWith('pants')
+          it 'adds amounts correctly', ->
+            testResult = week.getTotalAmountPerDay('pants')
+            expect(testResult).toEqual([100, 100, 100, 100, 100, 100, 100])
+
+        describe 'getCompletedAmountPerDay', ->
+          it 'calls section functions with the right unit', ->
+            week.getCompletedAmountPerDay('pants')
+            expect(section1.getCompletedAmountPerDay).toHaveBeenCalledWith('pants')
+            expect(section2.getCompletedAmountPerDay).toHaveBeenCalledWith('pants')
+          it 'adds amounts correctly', ->
+            testResult = week.getCompletedAmountPerDay('pants')
+            expect(testResult).toEqual([10, 10, 10, 10, 10, 10, 10])
+
   describe 'parseH3Line', ->
 
     describe 'with valid input', ->
