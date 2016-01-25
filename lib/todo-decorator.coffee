@@ -145,7 +145,8 @@ module.exports = todoDecorator =
 
   decorateItem: (editor, item, isFirstWeek, todayString, highlightedDay) ->
 
-    # TODO: This can be cleaner.
+    # TODO: This whole thing is messy and needs to be done differently. This is a plinko function and it sucks.
+
     isLate = (todayString != null) && !item.isDone &&
       (textConsts.dayKeysOrder.indexOf(todayString) > textConsts.dayKeysOrder.indexOf(item.day))
 
@@ -175,6 +176,9 @@ module.exports = todoDecorator =
     if isFirstWeek and (item.dayString == highlightedDay)
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-highlight")
+    else if (highlightedDay != null)
+      lineMarker = @createMarker(editor, item.lineRange)
+      editor.decorateMarker(lineMarker, type: 'line', class: "item-hidden")
 
     if item.isDone
       marker = @createMarker(editor, item.doneBadgeRange)
@@ -187,7 +191,6 @@ module.exports = todoDecorator =
     else if isFirstWeek and (item.day == todayString)
       lineMarker = @createMarker(editor, item.lineRange)
       editor.decorateMarker(lineMarker, type: 'line', class: "item-today")
-
 
   decorateTodo: (editor, tree, highlightedDay, selectedUnit) ->
     @highlightedDay = highlightedDay
